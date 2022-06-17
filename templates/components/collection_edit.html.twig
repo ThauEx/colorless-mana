@@ -1,0 +1,65 @@
+
+<div
+    {{ attributes }}
+    data-action="change->live#update"
+>
+    {% if this.isSaved %}
+        <div class="alert alert-success alert-dismissible fade show">
+            {{ 'cards.edit_card.success'|trans }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endif %}
+    {% if this.error %}
+        <div class="alert alert-danger alert-dismissible fade show">
+            {{ 'cards.edit_card.fail'|trans }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endif %}
+    {{ form_start(form, {
+        attr: {
+            'data-action': 'live#action',
+            'data-action-name': 'prevent|save'
+        }
+    }) }}
+    <div class="row">
+        <div class="col-md-6">
+            {{ form_row(form.editionAndSetCode) }}
+        </div>
+        <div class="col-md-6">
+            {{ form_row(form.language) }}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            {{ form_row(form.nonFoilQuantity) }}
+        </div>
+        <div class="col-md-6">
+            {{ form_row(form.foilQuantity) }}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <button class="btn btn-danger btn-sm mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+                {{ 'cards.collection.change_owner'|trans }}
+            </button>
+        </div>
+        <div class="col-md-6">
+            <div class="collapse" id="collapseExample">
+              {{ form_row(form.user) }}
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            {{ form_row(form.submit, {
+                attr: {
+                    'data-loading': 'addAttribute(disabled)',
+                }
+            }) }}
+        </div>
+        <div class="col-md-6 text-end">
+            <a href="{{ path('collection_delete', {id: collectedCard.id}) }}" class="btn btn-danger">{{ 'cards.collection.delete'|trans }}</a>
+        </div>
+    </div>
+    {{ form_end(form) }}
+</div>

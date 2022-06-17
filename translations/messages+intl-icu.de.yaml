@@ -1,0 +1,243 @@
+form:
+    search: Suchen
+    supertypes: Supertypen
+    types: Typen
+    subtypes: Untertypen
+    colors: Farben
+    color_matches: Farbübereinstimmung
+    color_match:
+        exact: genau
+        include: alle enthalten
+        at_most: mindestens eine
+    rarities: Seltenheiten
+    set_codes: Editionen
+    languages: Sprachen
+    cards:
+        collection:
+            search:
+                users: Benutzer
+                term: Suchbegriff
+                order: Reihenfolge
+                order_choices:
+                    standard: 'Standard'
+                    id: 'Importiert'
+                    name: Name
+                    quantity: Anzahl
+                    foil_quantity: Foil Anzahl
+                    rarity: Seltenheit
+                    set_code: Edition
+                    language: Sprache
+                    mana_cost: Manakosten
+                    type: Typ
+                    price: Preis
+                    foil_price: Foil Preis
+                    owner: Besitzer
+                is_normal: Normal
+                is_normal_choices:
+                    yes: Ja
+                    no: Nein
+                is_foil: Foil
+                is_foil_choices:
+                    yes: Ja
+                    no: Nein
+                direction: Sortierrichtung
+                direction_choices:
+                    auto: Auto
+                    asc: Aufsteigend
+                    desc: Absteigend
+        multi_search:
+            cards: Kartennamen
+            cards_placeholder: |
+                dark ritual
+                Insel
+            users: Benutzer
+            cards_not_found: 'Folgende Karten wurden nicht gefunden:'
+
+    # TODO Move into section above
+    card_edit:
+        edition: Edition
+        language: Sprache
+        languages:
+            available: verfügbar
+            unavailable: nicht verfügbar
+        non_foil_quantity: Nicht Foil Anzahl
+        foil_quantity: Foil Anzahl
+        owner: Besitzer
+        save: Speichern
+    card_search:
+        scryfall_id: Scryfall-ID
+        scryfall_submit: Suchen
+        set_code: Edition wählen
+        number: Nummer
+        set_number_submit: Suchen
+        name: Name
+        name_submit: Suchen
+    import:
+        update_only: Nur Einträge aktualisieren
+        submit: Import starten
+    wishlist_search:
+        name: Kartenname
+        submit: Suchen
+    wishlist_add:
+        languages: Sprachen
+        languages_placeholder: Alle
+        non_foil_quantity: Nicht Foil Anzahl
+        foil_quantity: Foil Anzahl
+        cards: Edition
+        cards_placeholder: Alle
+    account:
+        user_settings:
+            save: Speichern
+            can_see_collection: Wer kann die Sammlung sehen
+            can_search_in_collection: Wer kann die Sammlung durchsuchen
+            choices:
+                nobody: Niemand
+                followers: Follower
+                following_followers: Followern denen gefolgt wird
+                everybody: Jeder
+language:
+    en: Englisch
+    es: Spanisch
+    fr: Französisch
+    de: Deutsch
+    it: Italienisch
+    pt: Portugiesisch
+    ja: Japanisch
+    ko: Koreanisch
+    ru: Russisch
+    zhs: Vereinfachtes Chinesisch
+    zht: Traditionelles Chinesisch
+    he: Hebräisch
+    la: Lateinisch
+    grc: Altgriechisch
+    ar: Arabisch
+    sa: Sanskrit
+    ph: Phyrexisch
+
+card:
+    type:
+        enchantment: Verzauberung
+        land: Land
+        dungeon: Verließ
+        instant: Spontanzauber
+        sorcery: Hexerei
+        artifact: Artefakt
+        creature: Kreatur
+        token: Spielstein
+        planeswalker: Planeswalker
+        card: Karte
+        emblem: Emblem
+        eaturecray: Eaturecray
+    color:
+        b: Schwarz
+        g: Grün
+        r: Rot
+        u: Blau
+        w: Weiß
+    rarity:
+        common: häufig
+        uncommon: nicht ganz so häufig
+        rare: selten
+        mythic: sagenhaft selten
+        special: spezial
+
+common:
+    brand: Colorless Mana
+    error:
+        401:
+            title: Zugriff verweigert
+        403:
+            title: Zugriff verweigert
+        404:
+            title: Seite nicht gefunden
+            text: Die angeforderte Seite konnte nicht gefunden werden. Prüfen Sie die URL auf Rechtschreibfehler oder [Zurück zur Homepage]({link}).
+
+navigation:
+    login: Login
+    logout: Logout
+    home:
+        title: Home
+    collection:
+        title: Sammlung
+        overview: Übersicht
+        import: Import
+        search: Hinzufügen
+        multi_search: Mehrfachsuche
+        following: Andere Sammlungen
+    wishlist:
+        title: Wunschliste
+    public_link:
+        title: Öffentlicher Link
+    account:
+        title: Account
+    user:
+        title: Benutzer
+
+login:
+    title: Login
+    discord: Mit Discord anmelden
+
+account:
+    settings:
+        title: Einstellungen
+        updated: Einstellungen aktualisiert.
+
+cards:
+    collection:
+        title: Sammlung
+        stats: Statistiken
+        add_card: Karte hinzufügen
+        flip: Umdrehen
+        delete: Löschen
+        change_owner: Besitzer ändern
+    add_card:
+        success: Karte erfolgreich zur Sammlung hinzugefügt.
+    edit_card:
+        success: Karte erfolgreich gespeichert.
+        fail: Fehler beim Speichern der Karte.
+    remove_card:
+        success: Karte erfolgreich gelöscht.
+    import:
+        title: Import
+        failed_to_match: Beim Import konnten nicht alle Karten zugeordnet werden.
+        failed_matches_list: 'Der Eintrag mit diesen Daten konnte nicht gefunden werden:'
+        success: Import erfolgreich.
+        supported_apps: 'Unterstützt werden folgende Apps:'
+        apps:
+            delver_lens: Delver Lens
+            dragonshield_digital_card_manager: Dragon Shield Digital Card Manager
+        column_info: Beim Export mit Delver Lens sind die Spalten "Edition Code", "Collector's number", "Language", "Non-foil quantity" und "Foil quantity" erforderlich.
+    search:
+        title: Suchen
+        scryfall_id: Scryfall-ID
+        set_code_number: Edition / Nummer
+        name: Name
+        foil: Foil
+    public:
+        title: Sammlung von {user}
+        number_of_results: "Anzahl der Ergebnisse: {amount}"
+        normal: Normal
+        foil: Foil
+    following:
+        title: Sammlungen von gefolgten Benutzern
+    multi_search:
+        title: Mehrfachsuche
+
+wishlist:
+    list:
+        title: Wunschliste
+        add: Hinzufügen
+        name: Name
+        quantity: Anzahl
+        foil_quantity: Foil Anzahl
+        language: Sprache
+        sets: Editionen
+        match: Suchen
+    search:
+        title: Suchen
+        select: Auswählen
+    add:
+        title: Karte auswählen
+        add: Hinzufügen
+    match:
+        title: Treffer für "{name}"

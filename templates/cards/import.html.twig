@@ -1,0 +1,17 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'cards.import.title'|trans }}{% endblock %}
+
+{% block body %}
+    <div class="alert alert-info" role="alert">
+        {{ 'cards.import.supported_apps'|trans }}
+        <ul>
+            <li><a href="https://play.google.com/store/apps/details?id=delverlab.delverlens" target="_blank">{{ 'cards.import.apps.delver_lens'|trans }}</a></li>
+            <li><a href="https://www.dragonshield.com/digital-card-manager/" target="_blank">{{ 'cards.import.apps.dragonshield_digital_card_manager'|trans }}</a></li>
+        </ul>
+        {{ 'cards.import.column_info'|trans }}
+    </div>
+
+    {{ form_start(form) }}
+    {{ form_end(form) }}
+{% endblock %}

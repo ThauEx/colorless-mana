@@ -1,0 +1,91 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'cards.search.title'|trans }}{% endblock %}
+
+{% block body %}
+    {{ form_start(form) }}
+    <div class="accordion">
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <span class="accordion-button">{{ 'cards.search.scryfall_id'|trans }}</span>
+            </h2>
+            <div class="accordion-collapse collapse show">
+                <div class="accordion-body">
+                    <div class="input-group mb-3">
+                        {{ form_widget(form.scryfall_id) }}
+                        {{ form_widget(form.submit_scryfall) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <span class="accordion-button">{{ 'cards.search.set_code_number'|trans }}</span>
+            </h2>
+            <div class="accordion-collapse collapse show">
+                <div class="accordion-body">
+                    <div class="input-group mb-3">
+                        {{ form_widget(form.setCode) }}
+                        {{ form_widget(form.number) }}
+                        {{ form_widget(form.submit_set_number) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <span class="accordion-button">{{ 'cards.search.name'|trans }}</span>
+            </h2>
+            <div class="accordion-collapse collapse show">
+                <div class="accordion-body">
+                    <div class="input-group mb-3">
+                        {{ form_widget(form.name) }}
+                        {{ form_widget(form.submit_name) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {{ form_end(form) }}
+
+
+    {% if collection is not empty %}
+        <hr>
+
+        {% for row in collection|batch(4) %}
+            <div class="row">
+                {% for item in row %}
+                    <div class="col-md-3 mb-3" data-id="{{ item.id }}">
+                        <div class="card">
+                            <img src="https://api.scryfall.com/cards/{{ item.setCode }}/{{ item.number }}?format=image&version=normal" class="card-img-top img-fluid" alt="">
+                            <div class="card-body">
+                                <p class="text-center">
+                                    {{ item.setCode|set_name }} ({{ item.setCode }}) {{ item.number }}
+                                </p>
+                                {% for lang in item.cardLanguages %}
+                                    <form action="{{ path('collection_add') }}" method="get">
+                                        <div class="text-center">
+                                            <label for="{{ item.id }}_{{ lang }}">{{ item.texts(lang).name }} ({{ lang }})</label>
+                                        </div>
+                                        <div class="input-group">
+                                            <input type="hidden" name="setCode" value="{{ item.setCode }}">
+                                            <input type="hidden" name="number" value="{{ item.number }}">
+                                            <input type="hidden" name="lang" value="{{ lang }}">
+
+                                            <input type="number" name="nonFoilAmount" class="form-control" min="0" value="0" id="{{ item.id }}_{{ lang }}">
+                                            <span class="input-group-text">{{ 'cards.search.foil'|trans }}</span>
+                                            <input type="number" name="foilAmount" class="form-control" min="0" value="0" id="{{ item.id }}_{{ lang }}">
+                                            <button type="submit" class="btn btn-primary" title="Hinzufügen">
+                                                <svg class="bi d-block mx-auto mb-1" width="24" height="24"><use xlink:href="#journal-plus"></use></svg>
+                                            </button>
+                                        </div>
+                                    </form>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endblock %}

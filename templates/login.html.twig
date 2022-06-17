@@ -1,0 +1,10 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'login.title'|trans }}{% endblock %}
+
+{% block body %}
+    <a href="{{ path('login_discord_start') }}" class="btn btn-login-discord">
+        <svg class="bi d-block mx-auto mb-1" width="24" height="24"><use xlink:href="#discord"></use></svg>
+        <span>{{ 'login.discord'|trans }}</span>
+    </a>
+{% endblock %}

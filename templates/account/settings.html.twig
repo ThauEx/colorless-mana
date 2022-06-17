@@ -1,0 +1,16 @@
+{% extends 'base.html.twig' %}
+
+{% form_theme form with ['bootstrap_5_horizontal_layout.html.twig', 'form/settings.html.twig'] %}
+
+{% block title %}{{ 'account.settings.title'|trans }}{% endblock %}
+
+{% block body %}
+    {{ form_start(form) }}
+    {{ form_row(form.canSeeCollection) }}
+    {{ form_row(form.canSearchInCollection) }}
+
+    <div class="text-end">
+        {{ form_widget(form.submit) }}
+    </div>
+    {{ form_end(form) }}
+{% endblock %}

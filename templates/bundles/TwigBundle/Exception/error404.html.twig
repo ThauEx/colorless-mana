@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'common.error.404.title'|trans }}{% endblock %}
+
+{% block body %}
+    <h1>{{ 'common.error.404.title'|trans }}</h1>
+
+    <p>
+        {{ 'common.error.404.text'|trans({
+            '%link%': path('homepage'),
+        })|linkify }}
+    </p>
+{% endblock %}

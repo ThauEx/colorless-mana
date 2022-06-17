@@ -1,0 +1,29 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'wishlist.search.title'|trans }}{% endblock %}
+
+{% block body %}
+    {{ form_start(form) }}
+
+    {{ form_end(form) }}
+
+    <div class="row">
+    {% for result in results %}
+        {% set langData = result.texts('de', 'en') %}
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">{{ langData.name }}</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">{{ langData.type }}</h6>
+                    <p class="card-text">
+                        {{ langData.text|nl2br|symbology_icon }}
+                    </p>
+                    <div class="d-grid gap-2 col-6 mx-auto">
+                        <a href="{{ path('wishlist_add', {scryfallOracleId: result.scryfallOracleId}) }}" class="btn btn-primary btn-lg ">{{ 'wishlist.search.select'|trans }}</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+    </div>
+{% endblock %}

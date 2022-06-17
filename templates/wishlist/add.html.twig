@@ -1,0 +1,40 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'wishlist.add.title'|trans }}{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-4 card-image">
+            {% if card.side is not empty %}
+                <div class="flip-card">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front">
+                            <img src="https://api.scryfall.com/cards/{{ card.setCode }}/{{ card.number }}?format=image&version=normal&face=front" class="img-fluid" alt="">
+                        </div>
+                        <div class="flip-card-back">
+                            <img src="https://api.scryfall.com/cards/{{ card.setCode }}/{{ card.number }}?format=image&version=normal&face=back" class="img-fluid" alt="">
+                        </div>
+                    </div>
+                </div>
+                <div class="d-grid gap-2 col-6 mx-auto">
+                    <button type="button" class="btn btn-outline-light btn-sm js-flip-card">{{ 'cards.collection.flip'|trans }}</button>
+                </div>
+            {% else %}
+                <img src="https://api.scryfall.com/cards/{{ card.setCode }}/{{ card.number }}?format=image&version=normal" class="img-fluid" alt="">
+            {% endif %}
+        </div>
+        <div class="col-8">
+            {{ form_start(form) }}
+
+            {{ form_row(form.languages) }}
+            {{ form_row(form.nonFoilQuantity) }}
+            {{ form_row(form.foilQuantity) }}
+            {{ form_row(form.cards) }}
+
+            <div class="text-end">
+                <button class="btn btn-primary mb-3" type="submit">{{ 'wishlist.add.add'|trans }}</button>
+            </div>
+            {{ form_end(form) }}
+        </div>
+    </div>
+{% endblock %}

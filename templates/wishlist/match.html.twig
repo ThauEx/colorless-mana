@@ -1,0 +1,10 @@
+{% extends 'base.html.twig' %}
+
+{% set lang = card.texts('de', 'en') %}
+{% block title %}{{ 'wishlist.match.title'|trans({name: lang.name}) }}{% endblock %}
+
+{% block body %}
+    <h1 class="h3">{{ 'wishlist.match.title'|trans({name: lang.name}) }}</h1>
+
+    {% include 'cards/layout/images.html.twig' with {multi_user: true, collection: cards} %}
+{% endblock %}

@@ -1,0 +1,167 @@
+{%- set currentRoute = app.request.attributes.get('_route')|default('homepage') -%}
+<!DOCTYPE html>
+<html lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="color-scheme" content="dark light">
+        <title>{% block title %}{% endblock %} | {{ 'common.brand'|trans }}</title>
+        <link rel="apple-touch-icon" sizes="57x57" href="{{ asset('images/apple-icon-57x57.png') }}">
+        <link rel="apple-touch-icon" sizes="60x60" href="{{ asset('images/apple-icon-60x60.png') }}">
+        <link rel="apple-touch-icon" sizes="72x72" href="{{ asset('images/apple-icon-72x72.png') }}">
+        <link rel="apple-touch-icon" sizes="76x76" href="{{ asset('images/apple-icon-76x76.png') }}">
+        <link rel="apple-touch-icon" sizes="114x114" href="{{ asset('images/apple-icon-114x114.png') }}">
+        <link rel="apple-touch-icon" sizes="120x120" href="{{ asset('images/apple-icon-120x120.png') }}">
+        <link rel="apple-touch-icon" sizes="144x144" href="{{ asset('images/apple-icon-144x144.png') }}">
+        <link rel="apple-touch-icon" sizes="152x152" href="{{ asset('images/apple-icon-152x152.png') }}">
+        <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('images/apple-icon-180x180.png') }}">
+        <link rel="icon" type="image/png" sizes="192x192" href="{{ asset('images/android-icon-192x192.png') }}">
+        <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('images/favicon-32x32.png') }}">
+        <link rel="icon" type="image/png" sizes="96x96" href="{{ asset('images/favicon-96x96.png') }}">
+        <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('images/favicon-16x16.png') }}">
+        <link rel="manifest" href="{{ asset('manifest.json') }}">
+        <meta name="msapplication-TileColor" content="#FFFFFF">
+        <meta name="msapplication-TileImage" content="{{ asset('images/ms-icon-144x144.png') }}">
+        <meta name="theme-color" content="#FFFFFF">
+
+        {% block stylesheets %}
+            <link rel="stylesheet" href="{{ asset('css/styles.css') }}">
+        {% endblock %}
+
+        {% block javascripts %}
+            <script src="{{ asset('js/main.js') }}" defer></script>
+            {{ encore_entry_script_tags('app') }}
+        {% endblock %}
+    </head>
+    <body>
+        {% include 'icons.html.twig' %}
+        <header>
+            <div class="px-3 py-2 bg-dark text-white">
+                <div class="container">
+                    <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+                        <a href="/" class="d-flex align-items-center my-2 my-lg-0 me-lg-auto text-white text-decoration-none">
+                            <svg class="bi me-2 text-dark" width="40" height="32" role="img" aria-label="Bootstrap"><use xlink:href="#logo"></use></svg>
+                            {{ 'common.brand'|trans }}&nbsp;<span class="badge bg-secondary">BETA</span>
+                        </a>
+                        <ul class="nav col-12 col-lg-auto my-2 justify-content-center my-md-0 text-small">
+                            <li>
+
+                                <a href="{{ path('homepage') }}" class="nav-link {{ currentRoute == 'homepage' ? 'text-secondary' : 'text-white' }}">
+                                    <svg class="bi d-block mx-auto mb-1" width="24" height="24"><use xlink:href="#home"></use></svg>
+                                    {{ 'navigation.home.title'|trans }}
+                                </a>
+                            </li>
+                            {% if is_granted('ROLE_USER') %}
+                            <li>
+                                <a href="{{ path('collection_index') }}" class="nav-link {{ currentRoute matches '/^collection_.*/' ? 'text-secondary' : 'text-white' }}">
+                                    <svg class="bi d-block mx-auto mb-1" width="24" height="24"><use xlink:href="#card-list"></use></svg>
+                                    {{ 'navigation.collection.title'|trans }}
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ path('wishlist_index') }}" class="nav-link {{ currentRoute matches '/^wishlist_.*/' ? 'text-secondary' : 'text-white' }}">
+                                    <svg class="bi d-block mx-auto mb-1" width="24" height="24"><use xlink:href="#heart"></use></svg>
+                                    {{ 'navigation.wishlist.title'|trans }}
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ path('user_public_collection', {identifier: app.user.uuid|uuid_encode}) }}" class="nav-link text-white" target="_blank">
+                                    <svg class="bi d-block mx-auto mb-1" width="24" height="24"><use xlink:href="#link-45deg"></use></svg>
+                                    {{ 'navigation.public_link.title'|trans }}
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ path('account_settings') }}" class="nav-link {{ currentRoute matches '/^account_.*/' ? 'text-secondary' : 'text-white' }}">
+                                    <svg class="bi d-block mx-auto mb-1" width="24" height="24"><use xlink:href="#people-circle"></use></svg>
+                                    {{ 'navigation.account.title'|trans }}
+                                </a>
+                            </li>
+                            {% endif %}
+                            {% if is_granted('ROLE_ADMIN') %}
+                            <li>
+                                <a href="{{ path('user_index') }}" class="nav-link {{ currentRoute matches '/^user_.*/' ? 'text-secondary' : 'text-white' }}">
+                                    <svg class="bi d-block mx-auto mb-1" width="24" height="24"><use xlink:href="#people-fill"></use></svg>
+                                    {{ 'navigation.user.title'|trans }}
+                                </a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="px-3 py-2 border-bottom mb-3">
+                <div class="container d-flex flex-wrap justify-content-center">
+                    <div class="col-12 col-lg-auto mb-2 mb-lg-0 me-lg-auto">
+                        <ul class="nav">
+                        {% if is_granted('ROLE_USER') and currentRoute matches '/^collection_.*/' %}
+                            <li class="nav-item">
+                                <a class="nav-link{{ currentRoute == 'collection_index' ? ' active' }}" href="{{ path('collection_index') }}">
+                                    {{ 'navigation.collection.overview'|trans }}
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link{{ currentRoute == 'collection_search' ? ' active' }}" href="{{ path('collection_search') }}">
+                                    {{ 'navigation.collection.search'|trans }}
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link{{ currentRoute == 'collection_import' ? ' active' }}" href="{{ path('collection_import') }}">
+                                    {{ 'navigation.collection.import'|trans }}
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link{{ currentRoute == 'collection_multi_search' ? ' active' }}" href="{{ path('collection_multi_search') }}">
+                                    {{ 'navigation.collection.multi_search'|trans }}
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link{{ currentRoute == 'collection_following' ? ' active' }}" href="{{ path('collection_following') }}">
+                                    {{ 'navigation.collection.following'|trans }}
+                                </a>
+                            </li>
+                        {% endif %}
+                        </ul>
+                    </div>
+                    <div class="text-end">
+                        {% if app.user %}
+                            {% if is_granted('IS_IMPERSONATOR') %}
+                                <a href="{{ path(currentRoute, app.request.attributes.get('_route_params')|default({})|merge({'_switch_user': '_exit'})) }}" class="btn btn-danger">
+                                    <svg class="bi" width="16" height="16"><use xlink:href="#incognito"></use></svg>
+                                    {{ 'navigation.logout'|trans }}
+                                </a>
+                            {% else %}
+                                <a href="{{ path('logout') }}" class="btn btn-danger">
+                                    {{ 'navigation.logout'|trans }}
+                                </a>
+                            {% endif %}
+                        {% else %}
+                            <a href="{{ path('login') }}" class="btn btn-primary">{{ 'navigation.login'|trans }}</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </header>
+        <main class="flex-shrink-0">
+            <div class="container">
+                {% for label, messages in app.flashes %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ label }}">
+                            {{ message|trans }}
+                        </div>
+                    {% endfor %}
+                {% endfor %}
+                {% block body %}{% endblock %}
+            </div>
+        </main>
+        <footer class="text-muted py-5">
+            <hr>
+            <div class="container">
+                <p class="float-end mb-1">
+                    <a href="#">Back to top</a>
+                </p>
+                <p class="mb-1"></p>
+                <p class="mb-0 fs-6 text-muted">Wizards of the Coast, Magic: The Gathering, and their logos are trademarks of Wizards of the Coast LLC. © 1995-{{ 'now'|date('Y') }} Wizards. All rights reserved. This website is not affiliated with Wizards of the Coast LLC.</p>
+            </div>
+        </footer>
+    </body>
+</html>

@@ -1,0 +1,161 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'cards.collection.title'|trans }}{% endblock %}
+
+{% block body %}
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="headingStats">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseStats" aria-expanded="false" aria-controls="collapseStats">
+                {{ 'cards.collection.stats'|trans }}
+            </button>
+        </h2>
+        <div id="collapseStats" class="accordion-collapse collapse" aria-labelledby="headingStats">
+            <div class="accordion-body">
+                <strong>Karten in Sammlung:</strong><br>
+                <div class="row">
+                    <div class="col">
+                        Normal: {{ meta.quantities.nonFoil }} (Ø {{ meta.prices.nonFoil|format_currency('EUR') }})
+                    </div>
+                    <div class="col">
+                        Foil: {{ meta.quantities.foil }}(Ø {{ meta.prices.foil|format_currency('EUR') }})
+                    </div>
+                    <div class="col">
+                        Total: {{ meta.quantities.nonFoil + meta.quantities.foil }} (Ø {{ (meta.prices.nonFoil + meta.prices.foil)|format_currency('EUR') }})
+                    </div>
+                </div>
+                <br>
+                <strong>Sonstiges:</strong><br>
+                <div class="row">
+                    <div class="col">Typen: {{ meta.types|length }}</div>
+                    <div class="col">Untertypen: {{ meta.subTypes|length }}</div>
+                    <div class="col">Farben: {{ meta.colors|length }}</div>
+                    <div class="col">Sprachen: {{ meta.languages|length }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br>
+    {% include 'cards/search_filter.html.twig' %}
+
+    <div class="row">
+        <div class="col">
+            <p>Anzahl der Ergebnisse: {{ pager.nbResults }}</p>
+        </div>
+        <div class="col text-end">
+            <a href="{{ path('collection_search') }}" class="btn btn-primary">{{ 'cards.collection.add_card'|trans }}</a>
+        </div>
+    </div>
+
+    {% for item in collection %}
+        {% if loop.first %}
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>{{ 'form.cards.collection.search.order_choices.name'|trans }}</th>
+                    <th>{{ 'form.cards.collection.search.order_choices.quantity'|trans }}</th>
+                    <th>{{ 'form.cards.collection.search.order_choices.foil_quantity'|trans }}</th>
+                    <th>{{ 'form.cards.collection.search.order_choices.rarity'|trans }}</th>
+                    <th>{{ 'form.cards.collection.search.order_choices.set_code'|trans }}</th>
+                    <th>{{ 'form.cards.collection.search.order_choices.language'|trans }}</th>
+                    <th>{{ 'form.cards.collection.search.order_choices.mana_cost'|trans }}</th>
+                    <th>{{ 'form.cards.collection.search.order_choices.type'|trans }}</th>
+                    <th>{{ 'form.cards.collection.search.order_choices.price'|trans }}</th>
+                    <th>{{ 'form.cards.collection.search.order_choices.foil_price'|trans }}</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% endif %}
+            {% set lang = item.language in item.card.cardLanguages() ? item.language : '' %}
+                <tr data-bs-toggle="collapse" data-bs-target="#collapse{{ item.card.id }}-{{ item.language }}">
+                    <td></td>
+                    <td>{{ item.card.texts(lang).name }}</td>
+                    <td>{{ item.nonFoilQuantity }}</td>
+                    <td>{{ item.foilQuantity }}</td>
+                    <td>{{ ('card.rarity.' ~ item.card.rarity)|trans }}</td>
+                    <td class="row-icon">
+                        <span class="set-icon">{{ item.card.setCode|lower|set_icon }}</span>
+                    </td>
+                    <td class="row-icon">
+                        {{ item.language|flag }}
+                    </td>
+                    <td class="row-icon">
+                        {{ item.card.manaCost|symbology_icon }}
+                    </td>
+                    <td>{{ item.card.texts(lang).type }}</td>
+                    <td>
+                        {% if item.card.cardmarketPrices.priceNormal ?? false %}
+                            Ø {{ item.card.cardmarketPrices.priceNormal|format_currency('EUR') }}
+                        {% else  %}
+                            -
+                        {% endif %}
+
+                    </td>
+                    <td>
+                        {% if item.card.cardmarketPrices.priceFoil ?? false %}
+                            Ø {{ item.card.cardmarketPrices.priceFoil|format_currency('EUR') }}
+                        {% else  %}
+                            -
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr class="collapse" id="collapse{{ item.card.id }}-{{ item.language }}">
+                    <td colspan="11">
+                        <div class="row">
+                            <div class="col-md-3 card-image">
+                                {% if item.card.side is not empty %}
+                                    <div class="flip-card">
+                                        <div class="flip-card-inner">
+                                            <div class="flip-card-front">
+                                                <img src="https://api.scryfall.com/cards/{{ item.edition }}/{{ item.number }}/{{ lang }}?format=image&version=normal&face=front" class="img-fluid" alt="">
+                                            </div>
+                                            <div class="flip-card-back">
+                                                <img src="https://api.scryfall.com/cards/{{ item.edition }}/{{ item.number }}/{{ lang }}?format=image&version=normal&face=back" class="img-fluid" alt="">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="d-grid gap-2 col-6 mx-auto">
+                                        <button type="button" class="btn btn-outline-light btn-sm js-flip-card">{{ 'cards.collection.flip'|trans }}</button>
+                                    </div>
+                                {% else %}
+                                    <img src="https://api.scryfall.com/cards/{{ item.edition }}/{{ item.number }}/{{ lang }}?format=image&version=normal" class="img-fluid" alt="">
+                                {% endif %}
+                            </div>
+                            <div class="col-md-9">
+                                {{ component('collection_edit', {
+                                    collectedCard: item,
+                                    printings: printings[item.card.scryfallOracleId] ?? [],
+                                }) }}
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr></tr>
+            {% if loop.last %}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="11">
+                        <div class="navigation">
+                            {{ pagerfanta(pager) }}
+                        </div>
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+        {% endif %}
+    {% endfor %}
+
+    <script type="text/javascript">
+        const flipCardButtons = document.querySelectorAll('.js-flip-card');
+        for (let flipCardButton of flipCardButtons) {
+          flipCardButton.addEventListener('click', event => {
+            const inner = event.target.parentNode.parentNode.querySelector('.flip-card-inner');
+            inner.style.transform = ['none', ''].includes(inner.style.transform) ? 'rotateY(-180deg)' : '';
+          });
+        }
+    </script>
+{% endblock %}

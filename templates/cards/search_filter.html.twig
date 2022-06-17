@@ -1,0 +1,76 @@
+<div class="search-form">
+    {{ form_start(form) }}
+
+    {% if form.users is defined %}
+    <div class="row">
+        <div class="col-md-4">
+            {{ form_row(form.users) }}
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="row">
+        <div class="col-md-3">
+            {{ form_row(form.term) }}
+        </div>
+        <div class="col-md-3">
+            {% if form.supertypes.vars.choices|length < 2 %}<div class="d-none">{% endif %}
+            {{ form_row(form.supertypes) }}
+            {% if form.supertypes.vars.choices|length < 2 %}</div>{% endif %}
+        </div>
+        <div class="col-md-3">
+            {% if form.types.vars.choices|length < 2 %}<div class="d-none">{% endif %}
+            {{ form_row(form.types) }}
+            {% if form.types.vars.choices|length < 2 %}</div>{% endif %}
+        </div>
+        <div class="col-md-3">
+            {% if form.subtypes.vars.choices|length < 2 %}<div class="d-none">{% endif %}
+            {{ form_row(form.subtypes) }}
+            {% if form.subtypes.vars.choices|length < 2 %}</div>{% endif %}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-3">
+            {% if form.colors.vars.choices|length < 2 %}<div class="d-none">{% endif %}
+            {{ form_row(form.colors) }}
+            {% if form.colors.vars.choices|length < 2 %}</div>{% endif %}
+        </div>
+        <div class="col-md-3">
+            {% if form.rarities.vars.choices|length < 2 %}<div class="d-none">{% endif %}
+            {{ form_row(form.rarities) }}
+            {% if form.rarities.vars.choices|length < 2 %}</div>{% endif %}
+        </div>
+        <div class="col-md-3">
+            {% if form.setCodes.vars.choices|length < 2 %}<div class="d-none">{% endif %}
+            {{ form_row(form.setCodes) }}
+            {% if form.setCodes.vars.choices|length < 2 %}</div>{% endif %}
+        </div>
+        <div class="col-md-3">
+            {% if form.languages.vars.choices|length < 2 %}<div class="d-none">{% endif %}
+            {{ form_row(form.languages) }}
+            {% if form.languages.vars.choices|length < 2 %}</div>{% endif %}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-3">
+            {{ form_row(form.colorMatch) }}
+        </div>
+        <div class="col-md-1">
+            {{ form_row(form.isNormal) }}
+        </div>
+        <div class="col-md-1">
+            {{ form_row(form.isFoil) }}
+        </div>
+        <div class="col-md-2">
+            {{ form_row(form.order) }}
+        </div>
+        <div class="col-md-2">
+            {{ form_row(form.dir) }}
+        </div>
+        <div class="col-md-3 text-end" style="display: flex; align-items: flex-end; justify-content: flex-end;">
+            <button class="btn btn-primary mb-3" type="submit">{{ 'form.search'|trans }}</button>
+        </div>
+    </div>
+    {{ form_end(form) }}
+</div>
+<hr>

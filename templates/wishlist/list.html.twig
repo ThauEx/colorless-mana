@@ -1,0 +1,35 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'wishlist.list.title'|trans }}{% endblock %}
+
+{% block body %}
+    <h2>{{ 'wishlist.list.title'|trans }}</h2>
+    <a href="{{ path('wishlist_search') }}" class="btn btn-primary">{{ 'wishlist.list.add'|trans }}</a>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>{{ 'wishlist.list.quantity'|trans }}</th>
+                <th>{{ 'wishlist.list.foil_quantity'|trans }}</th>
+                <th>{{ 'wishlist.list.name'|trans }}</th>
+                <th>{{ 'wishlist.list.sets'|trans }}</th>
+                <th>{{ 'wishlist.list.language'|trans }}</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for entry in wishlist %}
+            {% set lang = entry.scryfallOracleIdCards|first.texts('de', 'en') %}
+            {% set setCodes = entry.cards|map(c => '<span class="set-icon">' ~ c.setCode|set_icon ~ '</span>')|join(' ') %}
+            <tr>
+                <td>{{ entry.nonFoilQuantity }}</td>
+                <td>{{ entry.foilQuantity }}</td>
+                <td>{{ lang.name }}</td>
+                <td class="row-icon">{{ setCodes is empty ? '-' : setCodes|raw }}</td>
+                <td>{{ entry.languages|map(l => l|flag)|join(' ')|raw }}</td>
+                <td><a href="{{ path('wishlist_match', {id: entry.id}) }}" class="btn btn-primary btn-sm">{{ 'wishlist.list.match'|trans }}</a></td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

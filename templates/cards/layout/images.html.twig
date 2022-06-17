@@ -1,0 +1,63 @@
+{% for row in collection|batch(4) %}
+    <div class="row">
+        {% for item in row %}
+            {% set lang = item.card.texts(item.language).name is not empty ? item.language : '' %}
+            <div class="col-sm-3 mb-3 card-image" data-card-id="{{ item.card.id }}">
+                <div class="card">
+                    {% if multi_user is defined %}
+                        <div class="card-header">
+                            {{ item.user.userIdentifier }}
+                        </div>
+                    {% endif %}
+
+                    <div class="image-wrapper">
+                        {% if wishlist ?? false %}
+                            <a href="{{ path('wishlist_add', {scryfallOracleId: item.card.scryfallOracleId}) }}" class="wishlist-add" target="_blank">
+                                <svg class="bi d-block mx-auto mb-1 text-danger" width="24" height="24"><use xlink:href="#heart-fill"></use></svg>
+                            </a>
+                        {% endif %}
+                        {% if item.card.side is not empty %}
+                            <div class="flip-card">
+                                <div class="flip-card-inner">
+                                    <div class="flip-card-front">
+                                        <img src="https://api.scryfall.com/cards/{{ item.edition }}/{{ item.number }}/{{ lang }}?format=image&version=normal&face=front" class="card-img-top img-fluid" alt="">
+                                    </div>
+                                    <div class="flip-card-back">
+                                        <img src="https://api.scryfall.com/cards/{{ item.edition }}/{{ item.number }}/{{ lang }}?format=image&version=normal&face=back" class="card-img-top img-fluid" alt="">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="position-absolute top-25 end-10">
+                                <button type="button" class="btn btn-light btn-sm js-flip-card">
+                                    <svg class="bi" width="24" height="24"><use xlink:href="#repeat"></use></svg>
+                                </button>
+                            </div>
+                        {% else %}
+                            <img src="https://api.scryfall.com/cards/{{ item.edition }}/{{ item.number }}/{{ lang }}?format=image&version=normal" class="card-img-top img-fluid" alt="">
+                        {% endif %}
+                    </div>
+                    <div class="card-body">
+                        <p class="text-center">
+                            {{ item.card.texts(lang).name }} ({{ item.language }})<br>
+                            <span class="set-icon">{{ item.card.setCode|lower|set_icon }}</span> {{ item.card.setCode|lower|set_name }}
+                        </p>
+                        <div class="row text-center">
+                            <div class="col">
+                                {{ 'cards.public.normal'|trans }}: {{ item.nonFoilQuantity }}x
+                                {% if item.card.cardmarketPrices.priceNormal ?? false %}
+                                    <br>Ø {{ item.card.cardmarketPrices.priceNormal|format_currency('EUR') }}
+                                {% endif %}
+                            </div>
+                            <div class="col">
+                                {{ 'cards.public.foil'|trans }}: {{ item.foilQuantity }}x
+                                {% if item.card.cardmarketPrices.priceFoil ?? false %}
+                                    <br>Ø {{ item.card.cardmarketPrices.priceFoil|format_currency('EUR') }}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endfor %}

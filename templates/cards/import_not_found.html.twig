@@ -1,0 +1,25 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'cards.import.title'|trans }}{% endblock %}
+
+{% block body %}
+    <div class="alert alert-warning" role="alert">
+        {{ 'cards.import.failed_to_match'|trans }}
+    </div>
+
+    {% for item in not_found %}
+        {{ 'cards.import.failed_matches_list'|trans }}
+        <ul>
+        {% for key, entry in item.original %}
+            <li>{{ key }}: {{ entry }}</li>
+        {% endfor %}
+        </ul>
+        <a href="{{ path('collection_search', {name: item.mapped.name ?? '', setCode: item.mapped.setCode ?? '', number: item.mapped.number ?? '' }) }}" class="btn btn-primary" target="_blank">
+            {{ 'form.search'|trans }}
+        </a>
+
+        {% if not loop.last %}
+            <hr>
+        {% endif %}
+    {% endfor %}
+{% endblock %}

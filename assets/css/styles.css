@@ -1,0 +1,88 @@
+.bi {
+    vertical-align: -0.125em;
+    fill: currentColor;
+}
+
+.card-text img,
+.row-icon img,
+.ts-dropdown-content img,
+.ts-control .item img {
+    height: 14px;
+}
+
+.card-body .set-icon,
+.row-icon span.set-icon {
+    border-radius: 14px;
+    background: white;
+    width: 14px;
+    height: 14px;
+    display: inline-block;
+    vertical-align: middle;
+    text-align: center;
+}
+
+.card-body .set-icon img,
+.row-icon span.set-icon img {
+    vertical-align: super;
+}
+
+img.card-img-top,
+.card-image img {
+    border-radius: 5% / 3.75%;
+}
+
+.card-image .image-wrapper {
+    position: relative;
+}
+
+.card-image .image-wrapper .wishlist-add {
+    display: none;
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    z-index: 5;
+}
+
+.card-image .image-wrapper:hover .wishlist-add {
+    display: block;
+}
+
+.flip-card {
+    width: 302px;
+    height: 421px;
+}
+
+.flip-card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    transition: transform 750ms;
+    transform-style: preserve-3d;
+}
+
+.flip-card-front,
+.flip-card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+}
+
+.flip-card-back {
+    transform: rotateY(180deg);
+}
+
+.top-25 {
+    top: 25%;
+}
+
+.end-10 {
+    right: 10%;
+}
+
+.btn-login-discord {
+    color: #FAFAFA;
+    background-color: #5865F2;
+    border-color: #5865F2;
+}
