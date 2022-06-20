@@ -266,6 +266,9 @@ dd($results);
             /** @var CollectedCard $result */
             foreach ($results as $result) {
                 $setCode = $result->getCard()->getSetCode();
+                if (!isset($sets[$setCode])) {
+                    continue;
+                }
                 $setCodes[$sets[$setCode]->getName()] = $setCode;
             }
 
