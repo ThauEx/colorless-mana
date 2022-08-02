@@ -24,6 +24,7 @@
         "psr/http-client": "^1.0",
         "ramsey/uuid-doctrine": "^1.7",
         "sensio/framework-extra-bundle": "^6.1",
+        "sentry/sentry-symfony": "^4.3",
         "snc/redis-bundle": "^4.1",
         "symfony/asset": "6.1.*",
         "symfony/cache": "6.1.*",
