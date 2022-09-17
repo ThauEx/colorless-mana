@@ -36,6 +36,13 @@ class CollectedCardType extends AbstractType
 
         $editions = [];
         foreach ($prints as $print) {
+            // Unknown set, use set code as label
+            if (!isset($sets[$print['setCode']])) {
+                $editions[$print['setCode']] = $print['setCode'] . '-' . $print['number'];
+
+                continue;
+            }
+
             $label = $sets[$print['setCode']]->getName() . ' (' . strtoupper($print['setCode']) . ')' . ' (' . $print['number'] . ')';
             $editions[$label] = $print['setCode'] . '-' . $print['number'];
         }
