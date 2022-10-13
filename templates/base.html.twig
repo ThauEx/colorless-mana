@@ -25,11 +25,10 @@
         <meta name="theme-color" content="#FFFFFF">
 
         {% block stylesheets %}
-            <link rel="stylesheet" href="{{ asset('css/styles.css') }}">
+            {{ encore_entry_link_tags('app') }}
         {% endblock %}
 
         {% block javascripts %}
-            <script src="{{ asset('js/main.js') }}" defer></script>
             {{ encore_entry_script_tags('app') }}
         {% endblock %}
     </head>

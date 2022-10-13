@@ -1,8 +1,5 @@
 
-<div
-    {{ attributes }}
-    data-action="change->live#update"
->
+<div {{ attributes }}>
     {% if this.isSaved %}
         <div class="alert alert-success alert-dismissible fade show">
             {{ 'cards.edit_card.success'|trans }}
