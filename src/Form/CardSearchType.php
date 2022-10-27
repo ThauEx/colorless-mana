@@ -12,7 +12,6 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class CardSearchType extends AbstractType
 {
-
     public function __construct(private readonly MtgDataProvider $mtgDataProvider)
     {
     }
@@ -20,13 +19,13 @@ class CardSearchType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $sets = $this->mtgDataProvider->getSets();
-        $setNames = [];
+        $setCodes = [];
         foreach ($sets as $set) {
             $setCode = $set->getCode();
-            $setNames[$set->getName() . ' (' . $setCode . ')'] = $setCode;
+            $setCodes[$set->getName() . ' (' . $setCode . ')'] = $setCode;
         }
 
-        ksort($setNames);
+        ksort($setCodes);
 
         $builder
             ->add(
@@ -52,7 +51,7 @@ class CardSearchType extends AbstractType
                 [
                     'required'                  => false,
                     'placeholder'               => 'form.card_search.set_code',
-                    'choices'                   => $setNames,
+                    'choices'                   => $setCodes,
                     'choice_translation_domain' => false,
                     'attr'                      => [
                         'class'          => 'js-select js-select-set-codes',

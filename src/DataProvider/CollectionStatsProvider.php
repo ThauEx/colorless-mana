@@ -11,11 +11,9 @@ use Symfony\Contracts\Cache\ItemInterface;
 
 class CollectionStatsProvider
 {
-    private EntityManagerInterface $em;
     private CacheInterface $cache;
 
-    public function __construct(EntityManagerInterface $em, CacheInterface $collectionStatsCache) {
-        $this->em = $em;
+    public function __construct(private readonly EntityManagerInterface $em, CacheInterface $collectionStatsCache) {
         $this->cache = $collectionStatsCache;
     }
 
@@ -269,7 +267,7 @@ dd($results);
                 if (!isset($sets[$setCode])) {
                     continue;
                 }
-                $setCodes[$sets[$setCode]->getName()] = $setCode;
+                $setCodes[$sets[$setCode]->getName() . ' (' . $setCode . ')'] = $setCode;
             }
 
             ksort($setCodes);
