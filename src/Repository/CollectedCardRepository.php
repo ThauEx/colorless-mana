@@ -189,14 +189,13 @@ class CollectedCardRepository extends ServiceEntityRepository
             $direction = $searchParams['dir'] === 'desc' ? 'desc' : 'asc';
             $sort = match ($searchParams['order']) {
                 'id'           => 'c.id',
-                'name'         => 't.name',
                 'quantity'     => 'c.nonFoilQuantity',
                 'foilQuantity' => 'c.foilQuantity',
                 'rarity'       => 'ca.rarity',
                 'setCode'      => 'ca.setCode',
                 'language'     => 'c.language',
                 'manaCost'     => 'ca.manaCost',
-                'type'         => 't.type',
+                'type'         => 'ca.types',
                 'price'        => 'ca.cardmarketPrices.priceNormal',
                 'foilPrice'    => 'ca.cardmarketPrices.priceFoil',
                 default        => '',
@@ -242,6 +241,5 @@ class CollectedCardRepository extends ServiceEntityRepository
         }
 
         return $qb->getQuery()->getResult();
-        return $qb;
     }
 }

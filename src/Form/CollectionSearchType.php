@@ -94,7 +94,6 @@ class CollectionSearchType extends AbstractType
                     'choices'  => [
                         'form.cards.collection.search.order_choices.standard'      => '',
                         'form.cards.collection.search.order_choices.id'            => 'id',
-                        'form.cards.collection.search.order_choices.name'          => 'name',
                         'form.cards.collection.search.order_choices.quantity'      => 'quantity',
                         'form.cards.collection.search.order_choices.foil_quantity' => 'foilQuantity',
                         'form.cards.collection.search.order_choices.rarity'        => 'rarity',
