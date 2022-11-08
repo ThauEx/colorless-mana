@@ -2,25 +2,26 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\Embeddable;
 
-/** @Embeddable */
+#[Embeddable]
 class CardLanguageData
 {
-    /** @ORM\Column(type="text", nullable=true) */
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $flavorText = null;
 
-    /** @ORM\Column(type="integer", nullable=true) */
+    #[ORM\Column(type: Types::INTEGER, nullable: true)]
     private ?int $multiverseId = null;
 
-    /** @ORM\Column(type="text", nullable=true) */
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $name = null;
 
-    /** @ORM\Column(name="text", type="text", nullable=true) */
+    #[ORM\Column(name: 'text', type: Types::TEXT, nullable: true)]
     private ?string $text = null;
 
-    /** @ORM\Column(type="text", nullable=true) */
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $type = null;
 
     public function getFlavorText(): ?string
@@ -31,6 +32,7 @@ class CardLanguageData
     public function setFlavorText(?string $flavorText): self
     {
         $this->flavorText = $flavorText;
+
         return $this;
     }
 

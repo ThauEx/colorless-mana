@@ -9,11 +9,9 @@ use App\Entity\Wishlist;
 use App\Form\WishlistSearchType;
 use App\Form\WishlistType;
 use App\Repository\WishlistRepository;
-use Doctrine\Common\Collections\Criteria;
 use Doctrine\Persistence\ManagerRegistry;
 use Ramsey\Uuid\Uuid;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -29,7 +27,7 @@ class WishlistController extends AbstractController
         $this->doctrine = $doctrine;
     }
 
-    #[Security("is_granted('ROLE_USER')")]
+    #[IsGranted('ROLE_USER')]
     #[Route('', name: 'index')]
     public function list(WishlistRepository $repository): Response
     {
@@ -38,7 +36,7 @@ class WishlistController extends AbstractController
         ]);
     }
 
-    #[Security("is_granted('ROLE_USER')")]
+    #[IsGranted('ROLE_USER')]
     #[Route('/search', name: 'search')]
     public function search(Request $request): Response
     {

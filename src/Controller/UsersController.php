@@ -6,16 +6,14 @@ use App\Entity\User;
 use App\Form\UserType;
 use App\Repository\UserRepository;
 use Doctrine\Persistence\ManagerRegistry;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Security("is_granted('ROLE_ADMIN')")
- * @Route("/users")
- */
+#[IsGranted('ROLE_ADMIN')]
+#[Route(path: '/users')]
 class UsersController extends AbstractController
 {
     private ManagerRegistry $doctrine;
@@ -25,9 +23,7 @@ class UsersController extends AbstractController
         $this->doctrine = $doctrine;
     }
 
-    /**
-     * @Route("/", name="user_index", methods={"GET"})
-     */
+    #[Route(path: '/', name: 'user_index', methods: ['GET'])]
     public function index(UserRepository $userRepository): Response
     {
         return $this->render('user/index.html.twig', [
@@ -35,9 +31,7 @@ class UsersController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/new", name="user_new", methods={"GET","POST"})
-     */
+    #[Route(path: '/new', name: 'user_new', methods: ['GET', 'POST'])]
     public function new(Request $request): Response
     {
         $user = new User();
@@ -58,9 +52,7 @@ class UsersController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/{id}", name="user_show", methods={"GET"})
-     */
+    #[Route(path: '/{id}', name: 'user_show', methods: ['GET'])]
     public function show(User $user): Response
     {
         return $this->render('user/show.html.twig', [
@@ -68,9 +60,7 @@ class UsersController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/{id}/edit", name="user_edit", methods={"GET","POST"})
-     */
+    #[Route(path: '/{id}/edit', name: 'user_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, User $user): Response
     {
         $form = $this->createForm(UserType::class, $user);
@@ -88,9 +78,7 @@ class UsersController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/{id}", name="user_delete", methods={"POST"})
-     */
+    #[Route(path: '/{id}', name: 'user_delete', methods: ['POST'])]
     public function delete(Request $request, User $user): Response
     {
         if ($this->isCsrfTokenValid('delete'.$user->getId(), $request->request->get('_token'))) {

@@ -2,10 +2,11 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\Embeddable;
 
-/** @Embeddable */
+#[Embeddable]
 class UserSettings
 {
     public const CAN_SEE_COLLECTION = 'canSeeCollection';
@@ -16,9 +17,7 @@ class UserSettings
     public const FOLLOWING_FOLLOWERS = 2;
     public const EVERYBODY = 3;
 
-    /**
-     * @ORM\Column(type="array", nullable=true)
-     */
+    #[ORM\Column(type: Types::ARRAY, nullable: true)]
     private ?array $settings;
 
     public function __construct()
