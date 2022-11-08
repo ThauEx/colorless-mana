@@ -2,16 +2,17 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\Embeddable;
 
-/** @Embeddable */
+#[Embeddable]
 class CardPrice
 {
-    /** @ORM\Column(type="float") */
+    #[ORM\Column(type: Types::FLOAT)]
     private ?float $priceNormal = 0.0;
 
-    /** @ORM\Column(type="float") */
+    #[ORM\Column(type: Types::FLOAT)]
     private ?float $priceFoil = 0.0;
 
     public function getPriceNormal(): ?float

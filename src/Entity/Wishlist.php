@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use App\Repository\WishlistRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -9,38 +10,35 @@ use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 
-/**
- * @ORM\Table(name="wishlist")
- * @ORM\Entity(repositoryClass=WishlistRepository::class)
- */
+#[ORM\Table(name: 'wishlist')]
+#[ORM\Entity(repositoryClass: WishlistRepository::class)]
 class Wishlist
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
-    private $id;
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: Types::INTEGER)]
+    private ?int $id = null;
 
-    /** @ORM\Column(type="uuid", unique=true) */
+    #[ORM\Column(type: 'uuid', unique: true)]
     private UuidInterface $uuid;
 
-    /** @ORM\Column(type="array", nullable=true) */
+    #[ORM\Column(type: Types::ARRAY, nullable: true)]
     private array $languages = [];
 
-    /** @ORM\Column(type="integer", nullable=false) */
+    #[ORM\Column(type: Types::INTEGER)]
     private int $nonFoilQuantity = 0;
 
-    /** @ORM\Column(type="integer", nullable=false) */
+    #[ORM\Column(type: Types::INTEGER)]
     private int $foilQuantity = 0;
 
-    /** @ORM\Column(type="uuid") */
+    #[ORM\Column(type: 'uuid')]
     private UuidInterface $scryfallOracleId;
 
-    /** @ORM\ManyToMany(targetEntity=Card::class) */
-    private $cards;
+    /** @var Collection<Card> */
+    #[ORM\ManyToMany(targetEntity: Card::class)]
+    private Collection $cards;
 
-    /** @ORM\ManyToOne(targetEntity=User::class, inversedBy="wishlist") */
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'wishlist')]
     private ?User $user;
 
     private $scryfallOracleIdCards = [];

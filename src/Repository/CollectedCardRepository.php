@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use Doctrine\Common\Collections\Criteria;
 use App\Entity\Card;
 use App\Entity\CollectedCard;
 use App\Entity\Wishlist;
@@ -53,8 +54,8 @@ class CollectedCardRepository extends ServiceEntityRepository
             ->select('c, ca')
             ->leftJoin('c.card', 'ca')
             ->where('c.user IN (:users)')
-            ->orderBy('ca.setCode', 'asc')
-            ->addOrderBy('ca.number', 'asc')
+            ->orderBy('ca.setCode', Criteria::ASC)
+            ->addOrderBy('ca.number', Criteria::ASC)
         ;
 
         if (!empty($searchParams['term'])) {

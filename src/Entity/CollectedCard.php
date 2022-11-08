@@ -2,48 +2,42 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use App\Repository\CollectedCardRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Table(name="collected_cards", indexes={@ORM\Index(columns={"edition", "number", "language"})})
- * @ORM\Entity(repositoryClass=CollectedCardRepository::class)
- * @ORM\Cache(usage="NONSTRICT_READ_WRITE")
- */
+#[ORM\Table(name: 'collected_cards')]
+#[ORM\Index(columns: ['edition', 'number', 'language'])]
+#[ORM\Entity(repositoryClass: CollectedCardRepository::class)]
+#[ORM\Cache(usage: 'NONSTRICT_READ_WRITE')]
 class CollectedCard
 {
-    /**
-     * @ORM\Column(name="id", type="integer", nullable=false)
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="IDENTITY")
-     */
+    #[ORM\Column(name: 'id', type: Types::INTEGER)]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
     private ?int $id;
 
-    /** @ORM\Column(name="edition", type="string", length=255, nullable=false) */
+    #[ORM\Column(name: 'edition', type: Types::STRING, length: 255)]
     private string $edition;
 
-    /** @ORM\Column(name="number", type="string", length=255, nullable=false) */
+    #[ORM\Column(name: 'number', type: Types::STRING, length: 255)]
     private string $number;
 
-    /** @ORM\Column(name="language", type="string", length=3, nullable=false) */
+    #[ORM\Column(name: 'language', type: Types::STRING, length: 3)]
     private string $language;
 
-    /** @ORM\Column(name="non_foil_quantity", type="integer", nullable=false) */
+    #[ORM\Column(name: 'non_foil_quantity', type: Types::INTEGER)]
     private int $nonFoilQuantity;
 
-    /** @ORM\Column(name="foil_quantity", type="integer", nullable=false) */
+    #[ORM\Column(name: 'foil_quantity', type: Types::INTEGER)]
     private int $foilQuantity;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="collectedCards", fetch="EXTRA_LAZY")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: User::class, fetch: 'EXTRA_LAZY', inversedBy: 'collectedCards')]
+    #[ORM\JoinColumn(nullable: false)]
     private ?User $user;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Card::class)
-     * @ORM\Cache(usage="NONSTRICT_READ_WRITE")
-     */
+    #[ORM\ManyToOne(targetEntity: Card::class)]
+    #[ORM\Cache(usage: 'NONSTRICT_READ_WRITE')]
     private ?Card $card;
 
     public function getId(): ?int

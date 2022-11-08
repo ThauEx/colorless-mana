@@ -2,147 +2,137 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use App\Repository\CardRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\Embedded;
 
-/**
- * @ORM\Table(name="cards", indexes={@ORM\Index(columns={"scryfall_oracle_id", "en_name", "es_name", "fr_name", "de_name", "it_name", "pt_name", "ja_name", "ko_name", "ru_name", "zhs_name", "zht_name", "he_name", "la_name", "grc_name", "ar_name", "sa_name", "ph_name"}, flags={"fulltext"})})
- * @ORM\Entity(repositoryClass="App\Repository\CardRepository", repositoryClass=CardRepository::class)
- * @ORM\Cache(usage="NONSTRICT_READ_WRITE")
- */
+#[ORM\Table(name: 'cards')]
+#[ORM\Index(columns: ['scryfall_oracle_id', 'en_name', 'es_name', 'fr_name', 'de_name', 'it_name', 'pt_name', 'ja_name', 'ko_name', 'ru_name', 'zhs_name', 'zht_name', 'he_name', 'la_name', 'grc_name', 'ar_name', 'sa_name', 'ph_name'], flags: ['fulltext'])]
+#[ORM\Entity(repositoryClass: CardRepository::class)]
+#[ORM\Cache(usage: 'NONSTRICT_READ_WRITE')]
 class Card
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="NONE")
-     * @ORM\Column(type="uuid", unique=true)
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'NONE')]
+    #[ORM\Column(type: 'uuid', unique: true)]
     private ?string $id;
 
-    /** @ORM\Column(type="string", length=255) */
+    #[ORM\Column(type: Types::STRING, length: 255)]
     private ?string $artist;
 
-    /** @ORM\Column(type="string", length=255) */
+    #[ORM\Column(type: Types::STRING, length: 255)]
     private ?string $borderColor;
 
-    /** @ORM\Column(type="array") */
+    #[ORM\Column(type: Types::ARRAY)]
     private array $colorIdentity = [];
 
-    /** @ORM\Column(type="array") */
+    #[ORM\Column(type: Types::ARRAY)]
     private array $colors = [];
 
-    /** @ORM\Column(type="float") */
+    #[ORM\Column(type: Types::FLOAT)]
     private ?float $convertedManaCost;
 
-    /** @ORM\Column(type="string", length=255) */
+    #[ORM\Column(type: Types::STRING, length: 255)]
     private ?string $frameVersion;
 
-    /** @ORM\Column(type="uuid", nullable=true) */
+    #[ORM\Column(type: 'uuid', nullable: true)]
     private ?string $scryfallId;
 
-    /** @ORM\Column(type="uuid", nullable=true) */
+    #[ORM\Column(type: 'uuid', nullable: true)]
     private ?string $scryfallIllustrationId;
 
-    /** @ORM\Column(type="uuid", nullable=true) */
+    #[ORM\Column(type: 'uuid', nullable: true)]
     private ?string $scryfallOracleId;
 
-    /** @ORM\Column(type="string", length=255) */
+    #[ORM\Column(type: Types::STRING, length: 255)]
     private ?string $layout;
 
-    /** @ORM\Column(type="string", length=255) */
+    #[ORM\Column(type: Types::STRING, length: 255)]
     private ?string $manaCost;
 
-    /** @ORM\Column(type="string", length=255) */
+    #[ORM\Column(type: Types::STRING, length: 255)]
     private ?string $number;
 
-    /** @ORM\Column(type="array") */
+    #[ORM\Column(type: Types::ARRAY)]
     private array $printings = [];
 
-    /** @ORM\Column(type="string", length=255) */
+    #[ORM\Column(type: Types::STRING, length: 255)]
     private ?string $rarity;
 
-    /** @ORM\Column(type="string", length=255) */
+    #[ORM\Column(type: Types::STRING, length: 255)]
     private ?string $setCode;
 
-    /** @ORM\Column(type="array") */
+    #[ORM\Column(type: Types::ARRAY)]
     private array $subtypes = [];
 
-    /** @ORM\Column(type="array") */
+    #[ORM\Column(type: Types::ARRAY)]
     private array $supertypes = [];
 
-    /** @ORM\Column(type="array") */
+    #[ORM\Column(type: Types::ARRAY)]
     private array $types = [];
 
-    /** @ORM\Column(type="string", length=1, nullable=true) */
+    #[ORM\Column(type: Types::STRING, length: 1, nullable: true)]
     private ?string $side;
 
-//    /** @ORM\OneToMany(targetEntity=LanguageData::class, mappedBy="card", indexBy="language", orphanRemoval=true, fetch="EAGER") */
-//    private Collection $languageData;
-//
-//    /**
-//     * @ORM\OneToOne(targetEntity=CardPrice::class, mappedBy="card", cascade={"persist", "remove"}, fetch="EAGER")
-//     */
-//    private ?CardPrice $price;
-
-    /** @Embedded(class="CardPrice", columnPrefix="cardkingdom_") */
+    #[Embedded(class: 'CardPrice', columnPrefix: 'cardkingdom_')]
     private CardPrice $cardkingdomPrices;
 
-    /** @Embedded(class="CardPrice", columnPrefix="cardmarket_") */
+    #[Embedded(class: 'CardPrice', columnPrefix: 'cardmarket_')]
     private CardPrice $cardmarketPrices;
 
-    /** @Embedded(class="CardPrice", columnPrefix="tcgplayer_") */
+    #[Embedded(class: 'CardPrice', columnPrefix: 'tcgplayer_')]
     private CardPrice $tcgplayerPrices;
 
-    /** @Embedded(class="CardLanguageData", columnPrefix="en_") */
+    #[Embedded(class: 'CardLanguageData', columnPrefix: 'en_')]
     private CardLanguageData $enTexts;
 
-    /** @Embedded(class="CardLanguageData", columnPrefix="es_") */
+    #[Embedded(class: 'CardLanguageData', columnPrefix: 'es_')]
     private CardLanguageData $esTexts;
 
-    /** @Embedded(class="CardLanguageData", columnPrefix="fr_") */
+    #[Embedded(class: 'CardLanguageData', columnPrefix: 'fr_')]
     private CardLanguageData $frTexts;
 
-    /** @Embedded(class="CardLanguageData", columnPrefix="de_") */
+    #[Embedded(class: 'CardLanguageData', columnPrefix: 'de_')]
     private CardLanguageData $deTexts;
 
-    /** @Embedded(class="CardLanguageData", columnPrefix="it_") */
+    #[Embedded(class: 'CardLanguageData', columnPrefix: 'it_')]
     private CardLanguageData $itTexts;
 
-    /** @Embedded(class="CardLanguageData", columnPrefix="pt_") */
+    #[Embedded(class: 'CardLanguageData', columnPrefix: 'pt_')]
     private CardLanguageData $ptTexts;
 
-    /** @Embedded(class="CardLanguageData", columnPrefix="ja_") */
+    #[Embedded(class: 'CardLanguageData', columnPrefix: 'ja_')]
     private CardLanguageData $jaTexts;
 
-    /** @Embedded(class="CardLanguageData", columnPrefix="ko_") */
+    #[Embedded(class: 'CardLanguageData', columnPrefix: 'ko_')]
     private CardLanguageData $koTexts;
 
-    /** @Embedded(class="CardLanguageData", columnPrefix="ru_") */
+    #[Embedded(class: 'CardLanguageData', columnPrefix: 'ru_')]
     private CardLanguageData $ruTexts;
 
-    /** @Embedded(class="CardLanguageData", columnPrefix="zhs_") */
+    #[Embedded(class: 'CardLanguageData', columnPrefix: 'zhs_')]
     private CardLanguageData $zhsTexts;
 
-    /** @Embedded(class="CardLanguageData", columnPrefix="zht_") */
+    #[Embedded(class: 'CardLanguageData', columnPrefix: 'zht_')]
     private CardLanguageData $zhtTexts;
 
-    /** @Embedded(class="CardLanguageData", columnPrefix="he_") */
+    #[Embedded(class: 'CardLanguageData', columnPrefix: 'he_')]
     private CardLanguageData $heTexts;
 
-    /** @Embedded(class="CardLanguageData", columnPrefix="la_") */
+    #[Embedded(class: 'CardLanguageData', columnPrefix: 'la_')]
     private CardLanguageData $laTexts;
 
-    /** @Embedded(class="CardLanguageData", columnPrefix="grc_") */
+    #[Embedded(class: 'CardLanguageData', columnPrefix: 'grc_')]
     private CardLanguageData $grcTexts;
 
-    /** @Embedded(class="CardLanguageData", columnPrefix="ar_") */
+    #[Embedded(class: 'CardLanguageData', columnPrefix: 'ar_')]
     private CardLanguageData $arTexts;
 
-    /** @Embedded(class="CardLanguageData", columnPrefix="sa_") */
+    #[Embedded(class: 'CardLanguageData', columnPrefix: 'sa_')]
     private CardLanguageData $saTexts;
 
-    /** @Embedded(class="CardLanguageData", columnPrefix="ph_") */
+    #[Embedded(class: 'CardLanguageData', columnPrefix: 'ph_')]
     private CardLanguageData $phTexts;
 
     public const CARD_LANGUAGES = ['en', 'de', 'es', 'fr', 'it', 'pt', 'ja', 'ko', 'ru', 'zhs', 'zht', 'he', 'la', 'grc', 'ar', 'sa', 'ph'];

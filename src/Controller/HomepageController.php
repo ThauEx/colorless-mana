@@ -9,9 +9,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class HomepageController extends AbstractController
 {
-    /**
-     * @Route("/", name="homepage", methods={"GET"})
-     */
+    #[Route(path: '/', name: 'homepage', methods: ['GET'])]
     public function __invoke(MtgDataProvider $scryfallProvider): Response
     {
         return $this->render('home.html.twig');

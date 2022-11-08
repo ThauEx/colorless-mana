@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -11,41 +12,35 @@ use KnpU\OAuth2ClientBundle\Security\User\OAuthUser;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 
-/**
- * @ORM\Entity(repositoryClass=UserRepository::class)
- */
+#[ORM\Entity(repositoryClass: UserRepository::class)]
 class User extends OAuthUser
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
-    private $id;
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: Types::INTEGER)]
+    private ?int $id = null;
 
-    /** @ORM\Column(type="uuid", unique=true) */
+    #[ORM\Column(type: 'uuid', unique: true)]
     private $uuid;
 
-    /** @ORM\Column(type="string", length=180, unique=true) */
-    private $username;
+    #[ORM\Column(type: Types::STRING, length: 180, unique: true)]
+    private ?string $username = null;
 
-    /** @ORM\Column(type="json") */
+    #[ORM\Column(type: Types::JSON)]
     private $roles = [];
 
-    /** @ORM\Column(name="discord_id", type="string", length=255, nullable=true) */
-    private $discordId;
+    #[ORM\Column(name: 'discord_id', type: Types::STRING, length: 255, nullable: true)]
+    private ?string $discordId = null;
 
-    /** @ORM\OneToMany(targetEntity=CollectedCard::class, mappedBy="user", orphanRemoval=true) */
-    private $collectedCards;
+    /** @var Collection<CollectedCard> */
+    #[ORM\OneToMany(targetEntity: CollectedCard::class, mappedBy: 'user', orphanRemoval: true)]
+    private Collection $collectedCards;
 
-    /**
-     * @ORM\OneToMany(targetEntity=Wishlist::class, mappedBy="user", fetch="EXTRA_LAZY")
-     */
-    private $wishlist;
+    /** @var Collection<Wishlist> */
+    #[ORM\OneToMany(targetEntity: Wishlist::class, mappedBy: 'user', fetch: 'EXTRA_LAZY')]
+    private Collection $wishlist;
 
-    /**
-     * @Embedded(class="UserSettings", columnPrefix=false)
-     */
+    #[Embedded(class: 'UserSettings', columnPrefix: false)]
     private UserSettings $settings;
 
     public function __construct($username = '', array $roles = [])
