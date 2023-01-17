@@ -3,7 +3,7 @@
 #    controller: App\Controller\DefaultController::index
 
 live_component:
-    resource: '@LiveComponentBundle/Resources/config/routing/live_component.xml'
+    resource: '@LiveComponentBundle/config/routes.php'
     # uncomment to add localization to your components
     #prefix: '/{_locale}'
 
