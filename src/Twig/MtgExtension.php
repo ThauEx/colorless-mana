@@ -32,7 +32,7 @@ class MtgExtension extends AbstractExtension
 
     public function parseSet(string $setCode): string
     {
-        return '<img src="' . $this->sets[$setCode]->getSvgUri() . '" alt="" title="' . $this->sets[$setCode]->getName() . ' (' . $setCode . ')">';
+        return '<img src="' . $this->sets[$setCode]?->getSvgUri() . '" alt="" title="' . $this->sets[$setCode]?->getName() . ' (' . $setCode . ')">';
     }
 
     public function parseSymbology(string $value): string
@@ -56,7 +56,7 @@ class MtgExtension extends AbstractExtension
 
     public function getSetName(string $setCode): string
     {
-        return $this->sets[$setCode]->getName();
+        return $this->sets[$setCode]?->getName() ?? '';
     }
 
     public function getFlag(string $languageCode): string

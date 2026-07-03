@@ -2,10 +2,10 @@
 
 namespace App\Controller;
 
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use App\Entity\User;
 use App\Form\UserSettingsType;
 use Doctrine\Persistence\ManagerRegistry;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;

@@ -31,7 +31,7 @@ class CollectionStatsProvider
                 ->distinct()
                 ->join('c.card', 'ca')
                 ->addSelect('ca')
-                ->groupBy('ca.supertypes')
+                ->groupBy('ca.supertypes', 'c.id', 'ca.id')
             ;
 
             if ($user) {
@@ -71,7 +71,7 @@ class CollectionStatsProvider
                 ->distinct()
                 ->join('c.card', 'ca')
                 ->addSelect('ca')
-                ->groupBy('ca.types')
+                ->groupBy('ca.types', 'c.id', 'ca.id')
             ;
 
             if ($user) {
@@ -111,7 +111,7 @@ class CollectionStatsProvider
                 ->distinct()
                 ->join('c.card', 'ca')
                 ->addSelect('ca')
-                ->groupBy('ca.subtypes')
+                ->groupBy('ca.subtypes', 'c.id', 'ca.id')
             ;
 
             if ($user) {
@@ -151,7 +151,7 @@ class CollectionStatsProvider
                 ->distinct()
                 ->join('c.card', 'ca')
                 ->addSelect('ca')
-                ->groupBy('ca.colors')
+                ->groupBy('ca.colors', 'c.id', 'ca.id')
             ;
 
             if ($user) {
@@ -190,7 +190,7 @@ class CollectionStatsProvider
                 ->distinct()
                 ->join('c.card', 'ca')
                 ->addSelect('ca')
-                ->groupBy('ca.rarity')
+                ->groupBy('ca.rarity', 'c.id', 'ca.id')
             ;
 
             if ($user) {
@@ -248,7 +248,7 @@ dd($results);
                 ->distinct()
                 ->join('c.card', 'ca')
                 ->addSelect('ca')
-                ->groupBy('c.edition')
+                ->groupBy('c.edition', 'c.id', 'ca.id')
             ;
 
             if ($user) {
@@ -288,7 +288,7 @@ dd($results);
             $qb = $repo->createQueryBuilder('c')
                 ->select('c')
                 ->distinct()
-                ->groupBy('c.language')
+                ->groupBy('c.language', 'c.id')
             ;
 
             if ($user) {

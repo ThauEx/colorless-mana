@@ -8,25 +8,19 @@ use App\Entity\Card;
 use App\Entity\CollectedCard;
 use App\Entity\User;
 use App\Form\CardSearchType;
-use App\Form\CollectionSearchType;
 use App\Form\MultiSearchType;
 use App\Helper\CollectionManager;
-use ArrayIterator;
 use Doctrine\Persistence\ManagerRegistry;
-use Pagerfanta\Doctrine\ORM\QueryAdapter;
-use Pagerfanta\Pagerfanta;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/collection', name: 'collection_')]
 class CollectionController extends AbstractController
@@ -39,7 +33,7 @@ class CollectionController extends AbstractController
         private readonly ManagerRegistry $doctrine
     ) {}
 
-    #[Security("is_granted('ROLE_USER')")]
+    #[IsGranted('ROLE_USER')]
     #[Route('', name: 'index')]
     public function list(Request $request): Response
     {
@@ -63,7 +57,7 @@ class CollectionController extends AbstractController
         ]);
     }
 
-    #[Security("is_granted('ROLE_USER')")]
+    #[IsGranted('ROLE_USER')]
     #[Route('/import', name: 'import')]
     public function import(Request $request): Response
     {
@@ -123,7 +117,7 @@ class CollectionController extends AbstractController
         ]);
     }
 
-    #[Security("is_granted('ROLE_USER')")]
+    #[IsGranted('ROLE_USER')]
     #[Route('/delete/{id}', name: 'delete')]
     public function removeCard(string $id): RedirectResponse
     {
@@ -148,7 +142,7 @@ class CollectionController extends AbstractController
         return $this->redirectToRoute('collection_index');
     }
 
-    #[Security("is_granted('ROLE_USER')")]
+    #[IsGranted('ROLE_USER')]
     #[Route('/search', name: 'search')]
     public function search(Request $request): Response
     {
@@ -177,7 +171,7 @@ class CollectionController extends AbstractController
         ]);
     }
 
-    #[Security("is_granted('ROLE_USER')")]
+    #[IsGranted('ROLE_USER')]
     #[Route('/multi-search', name: 'multi_search')]
     public function multiSearch(Request $request): Response
     {
@@ -232,7 +226,7 @@ class CollectionController extends AbstractController
         ]);
     }
 
-    #[Security("is_granted('ROLE_USER')")]
+    #[IsGranted('ROLE_USER')]
     #[Route('/add', name: 'add')]
     public function addCard(Request $request, CollectionManager $collectionManager): Response
     {
@@ -267,7 +261,7 @@ class CollectionController extends AbstractController
         return $this->redirectToRoute('collection_index');
     }
 
-    #[Security("is_granted('ROLE_USER')")]
+    #[IsGranted('ROLE_USER')]
     #[Route('/following', name: 'following')]
     public function following(Request $request): Response
     {

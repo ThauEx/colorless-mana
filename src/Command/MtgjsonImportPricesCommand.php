@@ -61,7 +61,8 @@ class MtgjsonImportPricesCommand extends Command
 
         $cardRepo = $this->em->getRepository(Card::class);
 
-        $progress = $io->createProgressBar(iterator_count($data));
+//        $progress = $io->createProgressBar(iterator_count($data));
+        $progress = $io->createProgressBar();
         $progress->start();
         $index = 0;
 
@@ -116,12 +117,14 @@ class MtgjsonImportPricesCommand extends Command
                 $loops = 0;
                 $this->em->flush();
                 $this->em->clear();
+                gc_collect_cycles();
             }
 
             $loops++;
 
             $progress->advance();
             $index++;
+            gc_collect_cycles();
         }
 
         $progress->finish();

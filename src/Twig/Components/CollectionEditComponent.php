@@ -26,7 +26,7 @@ class CollectionEditComponent extends AbstractController
 
     #[LiveProp(fieldName: '')]
     public ?CollectedCard $collectedCard = null;
-    #[LiveProp(writable: true)]
+    #[LiveProp]
     public ?array $printings = null;
 
     public bool $isSaved = false;
@@ -44,7 +44,7 @@ class CollectionEditComponent extends AbstractController
 
         $this->submitForm();
 
-        $form = $this->getFormInstance();
+        $form = $this->getForm();
 
         [$edition, $number] = explode('-', $form->get('editionAndSetCode')->getData());
 

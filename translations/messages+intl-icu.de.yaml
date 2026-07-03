@@ -140,6 +140,7 @@ card:
         rare: selten
         mythic: sagenhaft selten
         special: spezial
+        bonus: Bonus
 
 common:
     brand: Colorless Mana

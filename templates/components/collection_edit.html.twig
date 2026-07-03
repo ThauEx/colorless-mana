@@ -14,8 +14,8 @@
     {% endif %}
     {{ form_start(form, {
         attr: {
-            'data-action': 'live#action',
-            'data-action-name': 'prevent|save'
+            'data-action': 'live#action:prevent',
+            'data-live-action-param': 'save'
         }
     }) }}
     <div class="row">

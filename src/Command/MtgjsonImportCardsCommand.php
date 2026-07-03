@@ -8,6 +8,7 @@ use App\Helper\LanguageMapper;
 use Doctrine\ORM\EntityManagerInterface;
 use JsonMachine\Items as JsonMachine;
 use JsonMachine\JsonDecoder\ExtJsonDecoder;
+use Symfony\Component\Cache\Adapter\NullAdapter;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -25,6 +26,8 @@ class MtgjsonImportCardsCommand extends Command
     public function __construct(EntityManagerInterface $em, LanguageMapper $languageMapper)
     {
         $this->em = $em;
+        $this->em->getConnection()->getConfiguration()->setSQLLogger();
+        $this->em->getConnection()->getConfiguration()->setResultCache(new NullAdapter());
 
         parent::__construct();
         $this->languageMapper = $languageMapper;
@@ -35,6 +38,7 @@ class MtgjsonImportCardsCommand extends Command
         $this
             ->addArgument('path', InputArgument::REQUIRED, 'Path to the json file')
             ->addOption('set-index', 'i', InputOption::VALUE_OPTIONAL, 'Start at the given set index')
+            ->addOption('set', 's', InputOption::VALUE_OPTIONAL, 'Only import the given set')
         ;
     }
 
@@ -55,7 +59,8 @@ class MtgjsonImportCardsCommand extends Command
         $data = JsonMachine::fromFile($path, ['pointer' => '/data', 'decoder' => new ExtJsonDecoder(true)]);
         $cardRepo = $this->em->getRepository(Card::class);
 
-        $setsProgress = $io->createProgressBar(iterator_count($data));
+//        $setsProgress = $io->createProgressBar(iterator_count($data));
+        $setsProgress = $io->createProgressBar();
         $setsProgress->start();
         $index = 0;
 
@@ -68,11 +73,19 @@ class MtgjsonImportCardsCommand extends Command
                 continue;
             }
 
+            if ($input->getOption('set') !== null && strtolower($entry['code']) !== strtolower($input->getOption('set'))) {
+                $io->write("\033[1A");
+                $setsProgress->advance();
+                print "\n";
+                $index++;
+                continue;
+            }
+
             print "\n";
             $cardProgress = $io->createProgressBar(count($entry['cards']) + count($entry['tokens']));
             $cardProgress->start();
-            foreach (['cards', 'tokens'] as $type) {
-                foreach ($entry[$type] as $cardData) {
+//            foreach (['cards', 'tokens'] as $type) {
+                foreach ($entry['cards'] as $cardData) {
                     // There are duplicated tokens for some reason
                     if ($prevUuid === $cardData['uuid']) {
                         $io->writeln('Found duplicated uuid: ' . $cardData['uuid']);
@@ -80,10 +93,21 @@ class MtgjsonImportCardsCommand extends Command
                         continue;
                     }
 
+                    // Import printed cards only
+                    if (!in_array('paper', $cardData['availability'], true)) {
+                        continue;
+                    }
+
                     $exists = $cardRepo->findOneBy(['id' => $cardData['uuid']]);
 
                     if ($exists) {
                         $card = $exists;
+
+$this->em->detach($exists);
+$this->em->detach($card);
+unset($card, $exists);
+gc_collect_cycles();
+continue;
                     } else {
                         $card = new Card();
                         $card->setId($cardData['uuid']);
@@ -134,23 +158,26 @@ class MtgjsonImportCardsCommand extends Command
                             ->setText($foreignCardData['text'] ?? '')
                         ;
                     }
-
                     if (!$exists) {
                         $this->em->persist($card);
                     }
 
                     $prevUuid = $cardData['uuid'];
 
-                    if ($loops === 20) {
+#                    if ($loops === 20) {
                         $loops = 0;
                         $this->em->flush();
                         $this->em->clear();
-                    }
+#                        gc_collect_cycles();
+#                    }
 
                     $loops++;
                     $cardProgress->advance();
+#                    $this->em->detach($card);
+#                    unset($entry, $card, $exists, $languageData);
+#                    gc_collect_cycles();
                 }
-            }
+            //}
 
             $io->write("\033[1A");
             $setsProgress->advance();

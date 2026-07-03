@@ -74,7 +74,7 @@ class CardRepository extends ServiceEntityRepository
                 $results[$key] = [];
             }
 
-            $results[$key][] = $result;
+            $results[$key][] = ['setCode' => $result['setCode'], 'number' => $result['number']];
         }
 
         return $results;

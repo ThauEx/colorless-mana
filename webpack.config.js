@@ -19,10 +19,6 @@ Encore
   .enableSourceMaps(!Encore.isProduction())
   .enableVersioning(Encore.isProduction())
 
-  .configureBabel((config) => {
-    config.plugins.push('@babel/plugin-proposal-class-properties');
-  })
-
   // enables @babel/preset-env polyfills
   .configureBabelPresetEnv((config) => {
     config.useBuiltIns = 'usage';
