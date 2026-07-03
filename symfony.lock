@@ -5,21 +5,6 @@
     "brick/math": {
         "version": "0.9.3"
     },
-    "composer/package-versions-deprecated": {
-        "version": "1.11.99.2"
-    },
-    "doctrine/annotations": {
-        "version": "1.0",
-        "recipe": {
-            "repo": "github.com/symfony/recipes",
-            "branch": "master",
-            "version": "1.0",
-            "ref": "a2759dd6123694c8d901d0ec80006e044c2e6457"
-        },
-        "files": [
-            "config/routes/annotations.yaml"
-        ]
-    },
     "doctrine/cache": {
         "version": "2.1.1"
     },
@@ -91,9 +76,6 @@
     "egulias/email-validator": {
         "version": "3.1.1"
     },
-    "friendsofphp/proxy-manager-lts": {
-        "version": "v1.0.5"
-    },
     "guzzlehttp/guzzle": {
         "version": "7.3.0"
     },
@@ -117,9 +99,6 @@
         "files": [
             "config/packages/knpu_oauth2_client.yaml"
         ]
-    },
-    "laminas/laminas-code": {
-        "version": "4.4.2"
     },
     "league/oauth2-client": {
         "version": "2.6.0"
@@ -168,21 +147,6 @@
     },
     "phar-io/version": {
         "version": "3.1.0"
-    },
-    "php-http/discovery": {
-        "version": "1.19",
-        "recipe": {
-            "repo": "github.com/symfony/recipes",
-            "branch": "main",
-            "version": "1.18",
-            "ref": "f45b5dd173a27873ab19f5e3180b2f661c21de02"
-        },
-        "files": [
-            "config/packages/http_discovery.yaml"
-        ]
-    },
-    "php-http/message-factory": {
-        "version": "v1.0.2"
     },
     "phpdocumentor/reflection-common": {
         "version": "2.2.0"
@@ -584,9 +548,6 @@
         "version": "v5.3.4"
     },
     "symfony/property-info": {
-        "version": "v5.3.4"
-    },
-    "symfony/proxy-manager-bridge": {
         "version": "v5.3.4"
     },
     "symfony/routing": {
