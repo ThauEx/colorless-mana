@@ -17,7 +17,7 @@ class UserSettings
     public const FOLLOWING_FOLLOWERS = 2;
     public const EVERYBODY = 3;
 
-    #[ORM\Column(type: Types::ARRAY, nullable: true)]
+    #[ORM\Column(type: 'array', nullable: true)]
     private ?array $settings;
 
     public function __construct()

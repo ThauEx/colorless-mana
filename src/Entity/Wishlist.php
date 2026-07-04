@@ -22,7 +22,7 @@ class Wishlist
     #[ORM\Column(type: 'uuid', unique: true)]
     private UuidInterface $uuid;
 
-    #[ORM\Column(type: Types::ARRAY, nullable: true)]
+    #[ORM\Column(type: 'array', nullable: true)]
     private array $languages = [];
 
     #[ORM\Column(type: Types::INTEGER)]

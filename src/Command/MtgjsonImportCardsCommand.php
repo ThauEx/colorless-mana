@@ -26,7 +26,6 @@ class MtgjsonImportCardsCommand extends Command
     public function __construct(EntityManagerInterface $em, LanguageMapper $languageMapper)
     {
         $this->em = $em;
-        $this->em->getConnection()->getConfiguration()->setSQLLogger();
         $this->em->getConnection()->getConfiguration()->setResultCache(new NullAdapter());
 
         parent::__construct();

@@ -24,10 +24,10 @@ class Card
     #[ORM\Column(type: Types::STRING, length: 255)]
     private ?string $borderColor;
 
-    #[ORM\Column(type: Types::ARRAY)]
+    #[ORM\Column(type: 'array')]
     private array $colorIdentity = [];
 
-    #[ORM\Column(type: Types::ARRAY)]
+    #[ORM\Column(type: 'array')]
     private array $colors = [];
 
     #[ORM\Column(type: Types::FLOAT)]
@@ -54,7 +54,7 @@ class Card
     #[ORM\Column(type: Types::STRING, length: 255)]
     private ?string $number;
 
-    #[ORM\Column(type: Types::ARRAY)]
+    #[ORM\Column(type: 'array')]
     private array $printings = [];
 
     #[ORM\Column(type: Types::STRING, length: 255)]
@@ -63,76 +63,76 @@ class Card
     #[ORM\Column(type: Types::STRING, length: 255)]
     private ?string $setCode;
 
-    #[ORM\Column(type: Types::ARRAY)]
+    #[ORM\Column(type: 'array')]
     private array $subtypes = [];
 
-    #[ORM\Column(type: Types::ARRAY)]
+    #[ORM\Column(type: 'array')]
     private array $supertypes = [];
 
-    #[ORM\Column(type: Types::ARRAY)]
+    #[ORM\Column(type: 'array')]
     private array $types = [];
 
     #[ORM\Column(type: Types::STRING, length: 1, nullable: true)]
     private ?string $side;
 
-    #[Embedded(class: 'CardPrice', columnPrefix: 'cardkingdom_')]
+    #[Embedded(class: CardPrice::class, columnPrefix: 'cardkingdom_')]
     private CardPrice $cardkingdomPrices;
 
-    #[Embedded(class: 'CardPrice', columnPrefix: 'cardmarket_')]
+    #[Embedded(class: CardPrice::class, columnPrefix: 'cardmarket_')]
     private CardPrice $cardmarketPrices;
 
-    #[Embedded(class: 'CardPrice', columnPrefix: 'tcgplayer_')]
+    #[Embedded(class: CardPrice::class, columnPrefix: 'tcgplayer_')]
     private CardPrice $tcgplayerPrices;
 
-    #[Embedded(class: 'CardLanguageData', columnPrefix: 'en_')]
+    #[Embedded(class: CardLanguageData::class, columnPrefix: 'en_')]
     private CardLanguageData $enTexts;
 
-    #[Embedded(class: 'CardLanguageData', columnPrefix: 'es_')]
+    #[Embedded(class: CardLanguageData::class, columnPrefix: 'es_')]
     private CardLanguageData $esTexts;
 
-    #[Embedded(class: 'CardLanguageData', columnPrefix: 'fr_')]
+    #[Embedded(class: CardLanguageData::class, columnPrefix: 'fr_')]
     private CardLanguageData $frTexts;
 
-    #[Embedded(class: 'CardLanguageData', columnPrefix: 'de_')]
+    #[Embedded(class: CardLanguageData::class, columnPrefix: 'de_')]
     private CardLanguageData $deTexts;
 
-    #[Embedded(class: 'CardLanguageData', columnPrefix: 'it_')]
+    #[Embedded(class: CardLanguageData::class, columnPrefix: 'it_')]
     private CardLanguageData $itTexts;
 
-    #[Embedded(class: 'CardLanguageData', columnPrefix: 'pt_')]
+    #[Embedded(class: CardLanguageData::class, columnPrefix: 'pt_')]
     private CardLanguageData $ptTexts;
 
-    #[Embedded(class: 'CardLanguageData', columnPrefix: 'ja_')]
+    #[Embedded(class: CardLanguageData::class, columnPrefix: 'ja_')]
     private CardLanguageData $jaTexts;
 
-    #[Embedded(class: 'CardLanguageData', columnPrefix: 'ko_')]
+    #[Embedded(class: CardLanguageData::class, columnPrefix: 'ko_')]
     private CardLanguageData $koTexts;
 
-    #[Embedded(class: 'CardLanguageData', columnPrefix: 'ru_')]
+    #[Embedded(class: CardLanguageData::class, columnPrefix: 'ru_')]
     private CardLanguageData $ruTexts;
 
-    #[Embedded(class: 'CardLanguageData', columnPrefix: 'zhs_')]
+    #[Embedded(class: CardLanguageData::class, columnPrefix: 'zhs_')]
     private CardLanguageData $zhsTexts;
 
-    #[Embedded(class: 'CardLanguageData', columnPrefix: 'zht_')]
+    #[Embedded(class: CardLanguageData::class, columnPrefix: 'zht_')]
     private CardLanguageData $zhtTexts;
 
-    #[Embedded(class: 'CardLanguageData', columnPrefix: 'he_')]
+    #[Embedded(class: CardLanguageData::class, columnPrefix: 'he_')]
     private CardLanguageData $heTexts;
 
-    #[Embedded(class: 'CardLanguageData', columnPrefix: 'la_')]
+    #[Embedded(class: CardLanguageData::class, columnPrefix: 'la_')]
     private CardLanguageData $laTexts;
 
-    #[Embedded(class: 'CardLanguageData', columnPrefix: 'grc_')]
+    #[Embedded(class: CardLanguageData::class, columnPrefix: 'grc_')]
     private CardLanguageData $grcTexts;
 
-    #[Embedded(class: 'CardLanguageData', columnPrefix: 'ar_')]
+    #[Embedded(class: CardLanguageData::class, columnPrefix: 'ar_')]
     private CardLanguageData $arTexts;
 
-    #[Embedded(class: 'CardLanguageData', columnPrefix: 'sa_')]
+    #[Embedded(class: CardLanguageData::class, columnPrefix: 'sa_')]
     private CardLanguageData $saTexts;
 
-    #[Embedded(class: 'CardLanguageData', columnPrefix: 'ph_')]
+    #[Embedded(class: CardLanguageData::class, columnPrefix: 'ph_')]
     private CardLanguageData $phTexts;
 
     public const CARD_LANGUAGES = ['en', 'de', 'es', 'fr', 'it', 'pt', 'ja', 'ko', 'ru', 'zhs', 'zht', 'he', 'la', 'grc', 'ar', 'sa', 'ph'];

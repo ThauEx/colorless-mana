@@ -40,7 +40,7 @@ class User extends OAuthUser
     #[ORM\OneToMany(targetEntity: Wishlist::class, mappedBy: 'user', fetch: 'EXTRA_LAZY')]
     private Collection $wishlist;
 
-    #[Embedded(class: 'UserSettings', columnPrefix: false)]
+    #[Embedded(class: UserSettings::class, columnPrefix: false)]
     private UserSettings $settings;
 
     public function __construct($username = '', array $roles = [])
