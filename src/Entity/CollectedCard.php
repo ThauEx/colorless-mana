@@ -9,7 +9,6 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'collected_cards')]
 #[ORM\Index(columns: ['edition', 'number', 'language'])]
 #[ORM\Entity(repositoryClass: CollectedCardRepository::class)]
-#[ORM\Cache(usage: 'NONSTRICT_READ_WRITE')]
 class CollectedCard
 {
     #[ORM\Column(name: 'id', type: Types::INTEGER)]
@@ -37,7 +36,6 @@ class CollectedCard
     private ?User $user;
 
     #[ORM\ManyToOne(targetEntity: Card::class)]
-    #[ORM\Cache(usage: 'NONSTRICT_READ_WRITE')]
     private ?Card $card;
 
     public function getId(): ?int
