@@ -10,7 +10,6 @@ use Doctrine\ORM\Mapping\Embedded;
 #[ORM\Table(name: 'cards')]
 #[ORM\Index(columns: ['scryfall_oracle_id', 'en_name', 'es_name', 'fr_name', 'de_name', 'it_name', 'pt_name', 'ja_name', 'ko_name', 'ru_name', 'zhs_name', 'zht_name', 'he_name', 'la_name', 'grc_name', 'ar_name', 'sa_name', 'ph_name'], flags: ['fulltext'])]
 #[ORM\Index(columns: ['mtgjson_uuid'])]
-#[ORM\Index(columns: ['scryfall_id'])]
 #[ORM\Index(columns: ['set_code', 'number'])]
 #[ORM\Entity(repositoryClass: CardRepository::class)]
 class Card
@@ -37,9 +36,6 @@ class Card
 
     #[ORM\Column(type: Types::STRING, length: 255)]
     private ?string $frameVersion;
-
-    #[ORM\Column(type: 'uuid', nullable: true)]
-    private ?string $scryfallId;
 
     #[ORM\Column(type: 'uuid', nullable: true)]
     private ?string $scryfallIllustrationId;
@@ -259,16 +255,10 @@ class Card
         return $this;
     }
 
+    // The Scryfall id is the primary key since the uuid->scryfallId migration
     public function getScryfallId(): ?string
     {
-        return $this->scryfallId;
-    }
-
-    public function setScryfallId(?string $scryfallId): self
-    {
-        $this->scryfallId = $scryfallId;
-
-        return $this;
+        return $this->id;
     }
 
     public function getScryfallIllustrationId(): ?string

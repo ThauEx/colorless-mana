@@ -95,6 +95,12 @@ class MtgjsonImportCardsCommand extends Command
                     continue;
                 }
 
+                // Only front faces are stored; they carry the full "A // B" name
+                // and share the print's Scryfall id with their back faces
+                if (($cardData['side'] ?? 'a') !== 'a') {
+                    continue;
+                }
+
                 if (empty($cardData['identifiers']['scryfallId'])) {
                     $skipped++;
 
@@ -138,13 +144,13 @@ class MtgjsonImportCardsCommand extends Command
         $updated = 0;
 
         foreach ($batch as $cardData) {
-            $key = $this->matchKey($cardData['identifiers']['scryfallId'], $cardData['side'] ?? null);
+            $key = strtolower($cardData['identifiers']['scryfallId']);
 
             $card = $existing[$key] ?? null;
 
             if ($card === null) {
                 $card = new Card();
-                $card->setId($cardData['uuid']);
+                $card->setId($cardData['identifiers']['scryfallId']);
                 $this->em->persist($card);
                 // Later occurrences of the same print in this batch must update
                 // this instance instead of creating a second row.
@@ -163,57 +169,21 @@ class MtgjsonImportCardsCommand extends Command
         return [$created, $updated];
     }
 
-    /**
-     * Matches batch entries against existing rows by (scryfallId, side), with a
-     * fallback on the MTGJSON uuid for legacy rows that lack a Scryfall id.
-     *
-     * @return array<string, Card>
-     */
+    /** @return array<string, Card> existing cards keyed by their lowercased Scryfall id */
     private function findExisting(array $batch): array
     {
-        $repo = $this->em->getRepository(Card::class);
-
         $scryfallIds = array_values(array_unique(array_map(
             static fn (array $cardData) => $cardData['identifiers']['scryfallId'],
             $batch
         )));
-        $uuids = array_column($batch, 'uuid');
 
         $existing = [];
 
-        foreach ($repo->findBy(['scryfallId' => $scryfallIds]) as $card) {
-            $key = $this->matchKey($card->getScryfallId(), $card->getSide());
-
-            // Legacy duplicates can share a Scryfall id; prefer the row whose
-            // uuid still matches the current MTGJSON data.
-            if (isset($existing[$key]) && in_array($existing[$key]->getMtgjsonUuid(), $uuids, true)) {
-                continue;
-            }
-
-            $existing[$key] = $card;
-        }
-
-        foreach ($repo->findBy(['mtgjsonUuid' => $uuids]) as $card) {
-            if ($card->getScryfallId() !== null) {
-                continue;
-            }
-
-            foreach ($batch as $cardData) {
-                if ($cardData['uuid'] === $card->getMtgjsonUuid()) {
-                    $key = $this->matchKey($cardData['identifiers']['scryfallId'], $cardData['side'] ?? null);
-                    $existing[$key] ??= $card;
-
-                    break;
-                }
-            }
+        foreach ($this->em->getRepository(Card::class)->findBy(['id' => $scryfallIds]) as $card) {
+            $existing[strtolower($card->getId())] = $card;
         }
 
         return $existing;
-    }
-
-    private function matchKey(string $scryfallId, ?string $side): string
-    {
-        return strtolower($scryfallId) . '|' . ($side ?? '');
     }
 
     private function populateCard(Card $card, array $cardData): void
@@ -226,7 +196,6 @@ class MtgjsonImportCardsCommand extends Command
             ->setConvertedManaCost((float) ($cardData['convertedManaCost'] ?? 0))
             ->setFrameVersion($cardData['frameVersion'])
             ->setMtgjsonUuid($cardData['uuid'])
-            ->setScryfallId($cardData['identifiers']['scryfallId'])
             ->setScryfallIllustrationId($cardData['identifiers']['scryfallIllustrationId'] ?? null)
             ->setScryfallOracleId($cardData['identifiers']['scryfallOracleId'] ?? null)
             ->setLayout($cardData['layout'])

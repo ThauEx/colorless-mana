@@ -83,7 +83,7 @@ class CardRepository extends ServiceEntityRepository
     public function findByScryfallId(string $scryfallId)
     {
         return $this->findBy([
-            'scryfallId' => $scryfallId,
+            'id' => $scryfallId,
         ]);
     }
 
