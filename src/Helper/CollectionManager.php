@@ -9,11 +9,8 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 class CollectionManager
 {
-    private $em;
-
-    public function __construct(EntityManagerInterface $em)
+    public function __construct(private readonly EntityManagerInterface $em)
     {
-        $this->em = $em;
     }
 
     public function addCard(
@@ -24,8 +21,7 @@ class CollectionManager
         int $foilQuantity,
         bool $updateOnly = false
     ): void {
-        $repo = $this->em->getRepository(CollectedCard::class);
-        $collectedCard = $repo->findOneBy([
+        $collectedCard = $this->em->getRepository(CollectedCard::class)->findOneBy([
             'user'     => $user,
             'card'     => $card,
             'edition'  => $card->getSetCode(),
@@ -33,35 +29,48 @@ class CollectionManager
             'language' => $language,
         ]);
 
-        if (!$collectedCard) {
-            $collectedCard = new CollectedCard();
-            $collectedCard
-                ->setUser($user)
-                ->setCard($card)
-                ->setEdition($card->getSetCode())
-                ->setNumber($card->getNumber())
-                ->setLanguage($language)
-                ->setNonFoilQuantity(0)
-                ->setFoilQuantity(0)
-            ;
-            $this->em->persist($collectedCard);
-        }
+        $collectedCard ??= $this->createCollectedCard($user, $card, $language);
 
-        if ($updateOnly) {
-            if ($collectedCard->getNonFoilQuantity() !== $nonFoilQuantity) {
-                $collectedCard->setNonFoilQuantity($nonFoilQuantity);
-            }
-
-            if ($collectedCard->getFoilQuantity() !== $foilQuantity) {
-                $collectedCard->setFoilQuantity($foilQuantity);
-            }
-        } else {
-            $collectedCard
-                ->setNonFoilQuantity($collectedCard->getNonFoilQuantity() + $nonFoilQuantity)
-                ->setFoilQuantity($collectedCard->getFoilQuantity() + $foilQuantity)
-            ;
-        }
+        $this->applyQuantities($collectedCard, $nonFoilQuantity, $foilQuantity, $updateOnly);
 
         $this->em->flush();
+    }
+
+    public function createCollectedCard(UserInterface $user, Card $card, string $language): CollectedCard
+    {
+        $collectedCard = new CollectedCard();
+        $collectedCard
+            ->setUser($user)
+            ->setCard($card)
+            ->setEdition($card->getSetCode())
+            ->setNumber($card->getNumber())
+            ->setLanguage($language)
+            ->setNonFoilQuantity(0)
+            ->setFoilQuantity(0)
+        ;
+        $this->em->persist($collectedCard);
+
+        return $collectedCard;
+    }
+
+    public function applyQuantities(
+        CollectedCard $collectedCard,
+        int $nonFoilQuantity,
+        int $foilQuantity,
+        bool $updateOnly = false
+    ): void {
+        if ($updateOnly) {
+            $collectedCard
+                ->setNonFoilQuantity($nonFoilQuantity)
+                ->setFoilQuantity($foilQuantity)
+            ;
+
+            return;
+        }
+
+        $collectedCard
+            ->setNonFoilQuantity($collectedCard->getNonFoilQuantity() + $nonFoilQuantity)
+            ->setFoilQuantity($collectedCard->getFoilQuantity() + $foilQuantity)
+        ;
     }
 }

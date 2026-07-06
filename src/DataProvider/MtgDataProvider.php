@@ -3,12 +3,14 @@
 namespace App\DataProvider;
 
 use App\Entity\Card;
+use App\Entity\CollectedCard;
 use App\Entity\CardSet;
 use App\Entity\CardSymbol;
 use App\Helper\CollectionManager;
 use App\Helper\LanguageMapper;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
@@ -81,34 +83,22 @@ class MtgDataProvider
         $originalCsv = $csv;
         $csv = $this->mapValues($csv);
 
-        $cardRepo = $this->em->getRepository(Card::class);
+        $cardsByKey = $this->loadCardsForCsv($csv);
+        $collection = $this->loadCollection($user);
 
+        $cardRepo = $this->em->getRepository(Card::class);
         $notFound = [];
 
         foreach ($csv as $index => $item) {
-            $cards = $cardRepo->findBy([
-                'setCode' => $item['setCode'],
-                'number'  => $item['number'],
-            ]);
+            $card = $this->resolveCard($cardsByKey, $item);
 
-            if (count($cards) > 1) {
-                $card = $cardRepo->findOneBy([
-                    'setCode' => $item['setCode'],
-                    'number'  => $item['number'],
-                    'side'    => 'a',
-                ]);
-            } else {
-                $card = reset($cards);
-            }
-
+            // Promo sets sometimes come with a 4 character code and either no
+            // number or the number without the "p" suffix used in the database
             if (!$card && strlen($item['setCode']) === 4) {
                 if (empty($item['number'])) {
                     $card = $cardRepo->findOneByNameAndSetCode($item['name'], $item['setCode']);
                 } else {
-                    $card = $cardRepo->findOneBy([
-                        'setCode' => $item['setCode'],
-                        'number'  => $item['number'] . 'p',
-                    ]);
+                    $card = $this->resolveCard($cardsByKey, ['setCode' => $item['setCode'], 'number' => $item['number'] . 'p']);
                 }
             }
 
@@ -121,10 +111,14 @@ class MtgDataProvider
                 continue;
             }
 
-            $this->collectionManager->addCard(
-                $user,
-                $card,
-                $item['language'],
+            $key = $card->getId() . '|' . $item['language'];
+
+            if (!isset($collection[$key])) {
+                $collection[$key] = $this->collectionManager->createCollectedCard($user, $card, $item['language']);
+            }
+
+            $this->collectionManager->applyQuantities(
+                $collection[$key],
                 $item['nonFoilQuantity'],
                 $item['foilQuantity'],
                 $updateOnly
@@ -134,6 +128,79 @@ class MtgDataProvider
         $this->em->flush();
 
         return $notFound;
+    }
+
+    /**
+     * Loads all cards referenced by the CSV in one query per set.
+     *
+     * @return array<string, Card[]> cards grouped by "setCode|number"
+     */
+    private function loadCardsForCsv(array $csv): array
+    {
+        $numbersBySet = [];
+
+        foreach ($csv as $item) {
+            $numbersBySet[$item['setCode']][] = $item['number'];
+
+            if (strlen($item['setCode']) === 4 && !empty($item['number'])) {
+                $numbersBySet[$item['setCode']][] = $item['number'] . 'p';
+            }
+        }
+
+        $cardRepo = $this->em->getRepository(Card::class);
+        $cardsByKey = [];
+
+        foreach ($numbersBySet as $setCode => $numbers) {
+            $cards = $cardRepo->findBy([
+                'setCode' => $setCode,
+                'number'  => array_values(array_unique($numbers)),
+            ]);
+
+            foreach ($cards as $card) {
+                $cardsByKey[$card->getSetCode() . '|' . $card->getNumber()][] = $card;
+            }
+        }
+
+        return $cardsByKey;
+    }
+
+    /** @param array<string, Card[]> $cardsByKey */
+    private function resolveCard(array $cardsByKey, array $item): ?Card
+    {
+        $cards = $cardsByKey[$item['setCode'] . '|' . $item['number']] ?? [];
+
+        if (count($cards) > 1) {
+            // Multi-faced cards have one row per side; the collection tracks side "a"
+            foreach ($cards as $card) {
+                if ($card->getSide() === 'a') {
+                    return $card;
+                }
+            }
+
+            return null;
+        }
+
+        return $cards[0] ?? null;
+    }
+
+    /** @return array<string, CollectedCard> the user's collection keyed by "cardId|language" */
+    private function loadCollection(UserInterface $user): array
+    {
+        $rows = $this->em->getRepository(CollectedCard::class)->createQueryBuilder('cc')
+            ->select('cc', 'IDENTITY(cc.card) AS cardId')
+            ->where('cc.user = :user')
+            ->setParameter('user', $user)
+            ->getQuery()
+            ->getResult()
+        ;
+
+        $collection = [];
+
+        foreach ($rows as $row) {
+            $collection[$row['cardId'] . '|' . $row[0]->getLanguage()] = $row[0];
+        }
+
+        return $collection;
     }
 
     private function readCsv(string $file): array

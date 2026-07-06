@@ -12,29 +12,22 @@ use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-#[AsCommand(name: 'mtgjson:import:prices', description: 'Imports cards from a mtgjson source')]
+#[AsCommand(name: 'mtgjson:import:prices', description: 'Imports card prices from a mtgjson source')]
 class MtgjsonImportPricesCommand extends Command
 {
+    private const BATCH_SIZE = 500;
 
-    private EntityManagerInterface $em;
-
-    public function __construct(EntityManagerInterface $em)
+    public function __construct(private readonly EntityManagerInterface $em)
     {
-        $this->em = $em;
-
         parent::__construct();
     }
 
     protected function configure(): void
     {
-        $this
-            ->addArgument('path', InputArgument::REQUIRED, 'Path to the json file')
-            ->addOption('price-index', 'i', InputOption::VALUE_OPTIONAL, 'Start at the given set index')
-        ;
+        $this->addArgument('path', InputArgument::REQUIRED, 'Path to the json file');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -48,89 +41,109 @@ class MtgjsonImportPricesCommand extends Command
             return Command::FAILURE;
         }
 
-        $loops = 0;
-
-        $data = JsonMachine::fromFile($path, ['pointer' => '/data', 'decoder' => new ExtJsonDecoder(true)]);
-
-        $tz = new DateTimeZone('UTC');
-
-        $metaDate = JsonMachine::fromFile($path, ['pointer' => '/meta/date', 'decoder' => new ExtJsonDecoder(true)]);
-        foreach ($metaDate as $value) {
-            $fileDate = new DateTimeImmutable($value, $tz);
+        $dateKey = null;
+        foreach (JsonMachine::fromFile($path, ['pointer' => '/meta/date', 'decoder' => new ExtJsonDecoder(true)]) as $value) {
+            $dateKey = (new DateTimeImmutable($value, new DateTimeZone('UTC')))->format('Y-m-d');
         }
 
-        $cardRepo = $this->em->getRepository(Card::class);
+        if ($dateKey === null) {
+            $io->error('File contains no meta date.');
 
-//        $progress = $io->createProgressBar(iterator_count($data));
-        $progress = $io->createProgressBar();
-        $progress->start();
-        $index = 0;
+            return Command::FAILURE;
+        }
 
-        foreach ($data as $uuid => $entry) {
-            if ($input->hasOption('price-index') && $index < (int) $input->getOption('price-index')) {
-                $progress->advance();
-                $index++;
+        $updated = 0;
+        $missing = 0;
+        $batch = [];
+
+        foreach (JsonMachine::fromFile($path, ['pointer' => '/data', 'decoder' => new ExtJsonDecoder(true)]) as $uuid => $entry) {
+            $prices = $this->extractPrices($entry, $dateKey);
+
+            if ($prices === []) {
                 continue;
             }
 
-            /** @var Card $card */
-            $card = $cardRepo->findOneBy(['id' => $uuid]);
+            $batch[$uuid] = $prices;
 
-            if (!$card) {
-                $io->writeln('No card with uuid: ' . $uuid);
-
-                $index++;
-                continue;
+            if (count($batch) >= self::BATCH_SIZE) {
+                [$u, $m] = $this->processBatch($batch);
+                $updated += $u;
+                $missing += $m;
+                $batch = [];
             }
-
-            $cardkingdom = $entry['paper']['cardkingdom']['retail'] ?? ['normal' => [], 'foil' => []];
-            $cardmarket = $entry['paper']['cardmarket']['retail'] ?? ['normal' => [], 'foil' => []];
-            $tcgplayer = $entry['paper']['tcgplayer']['retail'] ?? ['normal' => [], 'foil' => []];
-
-            $cardkingdomNormal = $cardkingdom['normal'][$fileDate->format('Y-m-d')] ?? 0.0;
-            $cardkingdomFoil = $cardkingdom['foil'][$fileDate->format('Y-m-d')] ?? 0.0;
-            $cardmarketNormal = $cardmarket['normal'][$fileDate->format('Y-m-d')] ?? 0.0;
-            $cardmarketFoil = $cardmarket['foil'][$fileDate->format('Y-m-d')] ?? 0.0;
-            $tcgplayerNormal = $tcgplayer['normal'][$fileDate->format('Y-m-d')] ?? 0.0;
-            $tcgplayerFoil = $tcgplayer['foil'][$fileDate->format('Y-m-d')] ?? 0.0;
-
-            if ($cardkingdomNormal > 0.0) {
-                $card->getCardkingdomPrices()->setPriceNormal($cardkingdomNormal);
-            }
-            if ($cardkingdomFoil > 0.0) {
-                $card->getCardkingdomPrices()->setPriceFoil($cardkingdomFoil);
-            }
-            if ($cardmarketNormal > 0.0) {
-                $card->getCardmarketPrices()->setPriceNormal($cardmarketNormal);
-            }
-            if ($cardmarketFoil > 0.0) {
-                $card->getCardmarketPrices()->setPriceFoil($cardmarketFoil);
-            }
-            if ($tcgplayerNormal > 0.0) {
-                $card->getTcgplayerPrices()->setPriceNormal($tcgplayerNormal);
-            }
-            if ($tcgplayerFoil > 0.0) {
-                $card->getTcgplayerPrices()->setPriceFoil($tcgplayerFoil);
-            }
-
-            if ($loops === 20) {
-                $loops = 0;
-                $this->em->flush();
-                $this->em->clear();
-                gc_collect_cycles();
-            }
-
-            $loops++;
-
-            $progress->advance();
-            $index++;
-            gc_collect_cycles();
         }
 
-        $progress->finish();
+        if ($batch !== []) {
+            [$u, $m] = $this->processBatch($batch);
+            $updated += $u;
+            $missing += $m;
+        }
 
-        $io->success('Finished!');
+        $io->success(sprintf('Finished! Updated prices for %d cards, %d uuids without matching card.', $updated, $missing));
 
         return Command::SUCCESS;
+    }
+
+    /** @return array{0: int, 1: int} numbers of updated and missing cards */
+    private function processBatch(array $batch): array
+    {
+        $cards = $this->em->getRepository(Card::class)->findBy(['mtgjsonUuid' => array_keys($batch)]);
+        $updated = 0;
+
+        foreach ($cards as $card) {
+            $prices = $batch[$card->getMtgjsonUuid()] ?? null;
+
+            if ($prices === null) {
+                continue;
+            }
+
+            if (isset($prices['cardkingdom']['normal'])) {
+                $card->getCardkingdomPrices()->setPriceNormal($prices['cardkingdom']['normal']);
+            }
+            if (isset($prices['cardkingdom']['foil'])) {
+                $card->getCardkingdomPrices()->setPriceFoil($prices['cardkingdom']['foil']);
+            }
+            if (isset($prices['cardmarket']['normal'])) {
+                $card->getCardmarketPrices()->setPriceNormal($prices['cardmarket']['normal']);
+            }
+            if (isset($prices['cardmarket']['foil'])) {
+                $card->getCardmarketPrices()->setPriceFoil($prices['cardmarket']['foil']);
+            }
+            if (isset($prices['tcgplayer']['normal'])) {
+                $card->getTcgplayerPrices()->setPriceNormal($prices['tcgplayer']['normal']);
+            }
+            if (isset($prices['tcgplayer']['foil'])) {
+                $card->getTcgplayerPrices()->setPriceFoil($prices['tcgplayer']['foil']);
+            }
+
+            $updated++;
+        }
+
+        $this->em->flush();
+        $this->em->clear();
+
+        return [$updated, count($batch) - $updated];
+    }
+
+    /** @return array<string, array{normal?: float, foil?: float}> */
+    private function extractPrices(array $entry, string $dateKey): array
+    {
+        $prices = [];
+
+        foreach (['cardkingdom', 'cardmarket', 'tcgplayer'] as $vendor) {
+            $retail = $entry['paper'][$vendor]['retail'] ?? [];
+
+            $normal = $retail['normal'][$dateKey] ?? 0.0;
+            $foil = $retail['foil'][$dateKey] ?? 0.0;
+
+            if ($normal > 0.0) {
+                $prices[$vendor]['normal'] = $normal;
+            }
+            if ($foil > 0.0) {
+                $prices[$vendor]['foil'] = $foil;
+            }
+        }
+
+        return $prices;
     }
 }

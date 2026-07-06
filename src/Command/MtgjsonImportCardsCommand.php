@@ -20,23 +20,46 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 #[AsCommand(name: 'mtgjson:import:cards', description: 'Imports cards from a mtgjson source')]
 class MtgjsonImportCardsCommand extends Command
 {
-    private EntityManagerInterface $em;
-    private LanguageMapper $languageMapper;
+    private const BATCH_SIZE = 250;
 
-    public function __construct(EntityManagerInterface $em, LanguageMapper $languageMapper)
-    {
-        $this->em = $em;
+    // Promo types that describe a special foil treatment. They replace the plain
+    // "foil" entry so the collection can distinguish e.g. surge foil from foil.
+    private const FOIL_TREATMENTS = [
+        'surgefoil',
+        'galaxyfoil',
+        'silverfoil',
+        'rainbowfoil',
+        'ripplefoil',
+        'doublerainbow',
+        'halofoil',
+        'confettifoil',
+        'fracturefoil',
+        'manafoil',
+        'dragonscalefoil',
+        'raisedfoil',
+        'texturedfoil',
+        'stepandcompleat',
+        'oilslick',
+        'neonink',
+        'gilded',
+        'embossed',
+        'invisibleink',
+        'firstplacefoil',
+    ];
+
+    public function __construct(
+        private readonly EntityManagerInterface $em,
+        private readonly LanguageMapper $languageMapper,
+    ) {
         $this->em->getConnection()->getConfiguration()->setResultCache(new NullAdapter());
 
         parent::__construct();
-        $this->languageMapper = $languageMapper;
     }
 
     protected function configure(): void
     {
         $this
             ->addArgument('path', InputArgument::REQUIRED, 'Path to the json file')
-            ->addOption('set-index', 'i', InputOption::VALUE_OPTIONAL, 'Start at the given set index')
             ->addOption('set', 's', InputOption::VALUE_OPTIONAL, 'Only import the given set')
         ;
     }
@@ -45,6 +68,7 @@ class MtgjsonImportCardsCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
         $path = $input->getArgument('path');
+        $onlySet = $input->getOption('set');
 
         if (!file_exists($path)) {
             $io->error('File does not exist.');
@@ -52,141 +76,210 @@ class MtgjsonImportCardsCommand extends Command
             return Command::FAILURE;
         }
 
-        $loops = 0;
+        $created = 0;
+        $updated = 0;
+        $skipped = 0;
 
-        $prevUuid = '';
-        $data = JsonMachine::fromFile($path, ['pointer' => '/data', 'decoder' => new ExtJsonDecoder(true)]);
-        $cardRepo = $this->em->getRepository(Card::class);
+        $sets = JsonMachine::fromFile($path, ['pointer' => '/data', 'decoder' => new ExtJsonDecoder(true)]);
 
-//        $setsProgress = $io->createProgressBar(iterator_count($data));
-        $setsProgress = $io->createProgressBar();
-        $setsProgress->start();
-        $index = 0;
-
-        foreach ($data as $entry) {
-            if ($input->hasOption('set-index') && $index < (int) $input->getOption('set-index')) {
-                $io->write("\033[1A");
-                $setsProgress->advance();
-                print "\n";
-                $index++;
+        foreach ($sets as $set) {
+            if ($onlySet !== null && strcasecmp($set['code'], $onlySet) !== 0) {
                 continue;
             }
 
-            if ($input->getOption('set') !== null && strtolower($entry['code']) !== strtolower($input->getOption('set'))) {
-                $io->write("\033[1A");
-                $setsProgress->advance();
-                print "\n";
-                $index++;
-                continue;
-            }
+            $batch = [];
+            $seenUuids = [];
 
-            print "\n";
-            $cardProgress = $io->createProgressBar(count($entry['cards']) + count($entry['tokens']));
-            $cardProgress->start();
-//            foreach (['cards', 'tokens'] as $type) {
-                foreach ($entry['cards'] as $cardData) {
-                    // There are duplicated tokens for some reason
-                    if ($prevUuid === $cardData['uuid']) {
-                        $io->writeln('Found duplicated uuid: ' . $cardData['uuid']);
-                        $index++;
-                        continue;
-                    }
-
-                    // Import printed cards only
-                    if (!in_array('paper', $cardData['availability'], true)) {
-                        continue;
-                    }
-
-                    $exists = $cardRepo->findOneBy(['id' => $cardData['uuid']]);
-
-                    if ($exists) {
-                        $card = $exists;
-
-$this->em->detach($exists);
-$this->em->detach($card);
-unset($card, $exists);
-gc_collect_cycles();
-continue;
-                    } else {
-                        $card = new Card();
-                        $card->setId($cardData['uuid']);
-                    }
-
-                    $card
-                        ->setArtist($cardData['artist'] ?? '')
-                        ->setBorderColor($cardData['borderColor'])
-                        ->setColorIdentity($cardData['colorIdentity'])
-                        ->setColors($cardData['colors'])
-                        ->setConvertedManaCost((float) ($cardData['convertedManaCost'] ?? 0))
-                        ->setFrameVersion($cardData['frameVersion'])
-                        ->setScryfallId($cardData['identifiers']['scryfallId'] ?? null)
-                        ->setScryfallIllustrationId($cardData['identifiers']['scryfallIllustrationId'] ?? null)
-                        ->setScryfallOracleId($cardData['identifiers']['scryfallOracleId'] ?? null)
-                        ->setLayout($cardData['layout'])
-                        ->setManaCost($cardData['manaCost'] ?? '{0}')
-                        ->setNumber($cardData['number'])
-                        ->setPrintings(array_map('strtolower', $cardData['printings'] ?? [strtolower($cardData['setCode'])]))
-                        ->setRarity($cardData['rarity'] ?? 'common')
-                        ->setSetCode(strtolower($cardData['setCode']))
-                        ->setSubtypes($cardData['subtypes'])
-                        ->setSupertypes($cardData['supertypes'])
-                        ->setTypes($cardData['types'])
-                        ->setSide($cardData['side'] ?? null)
-                    ;
-
-                    $languageData = $card->getEnTexts();
-                    $languageData
-                        ->setMultiverseId($cardData['identifiers']['multiverseId'] ?? null)
-                        ->setName($cardData['name'])
-                        ->setType($cardData['type'])
-                        ->setFlavorText($cardData['flavorText'] ?? '')
-                        ->setText($cardData['text'] ?? '')
-                    ;
-
-                    foreach ($cardData['foreignData'] ?? [] as $foreignCardData) {
-                        $language = $this->languageMapper->languageToCode($foreignCardData['language']);
-
-                        /** @var CardLanguageData $languageData */
-                        $languageData = $card->{'get' . ucfirst($language) . 'Texts'}();
-
-                        $languageData
-                            ->setMultiverseId($foreignCardData['multiverseId'] ?? null)
-                            ->setName($foreignCardData['name'])
-                            ->setType($foreignCardData['type'] ?? '')
-                            ->setFlavorText($foreignCardData['flavorText'] ?? '')
-                            ->setText($foreignCardData['text'] ?? '')
-                        ;
-                    }
-                    if (!$exists) {
-                        $this->em->persist($card);
-                    }
-
-                    $prevUuid = $cardData['uuid'];
-
-#                    if ($loops === 20) {
-                        $loops = 0;
-                        $this->em->flush();
-                        $this->em->clear();
-#                        gc_collect_cycles();
-#                    }
-
-                    $loops++;
-                    $cardProgress->advance();
-#                    $this->em->detach($card);
-#                    unset($entry, $card, $exists, $languageData);
-#                    gc_collect_cycles();
+            foreach ($set['cards'] as $cardData) {
+                if (!in_array('paper', $cardData['availability'] ?? [], true)) {
+                    continue;
                 }
-            //}
 
-            $io->write("\033[1A");
-            $setsProgress->advance();
-            $index++;
+                if (empty($cardData['identifiers']['scryfallId'])) {
+                    $skipped++;
+
+                    continue;
+                }
+
+                if (isset($seenUuids[$cardData['uuid']])) {
+                    continue;
+                }
+                $seenUuids[$cardData['uuid']] = true;
+
+                $batch[] = $cardData;
+
+                if (count($batch) >= self::BATCH_SIZE) {
+                    [$c, $u] = $this->processBatch($batch);
+                    $created += $c;
+                    $updated += $u;
+                    $batch = [];
+                }
+            }
+
+            if ($batch !== []) {
+                [$c, $u] = $this->processBatch($batch);
+                $created += $c;
+                $updated += $u;
+            }
+
+            $io->writeln(sprintf('%s done (created: %d, updated: %d)', $set['code'], $created, $updated));
         }
 
-        $setsProgress->finish();
-
-        $io->success('Finished!');
+        $io->success(sprintf('Finished! Created %d, updated %d, skipped %d cards without Scryfall id.', $created, $updated, $skipped));
 
         return Command::SUCCESS;
+    }
+
+    /** @return array{0: int, 1: int} numbers of created and updated cards */
+    private function processBatch(array $batch): array
+    {
+        $existing = $this->findExisting($batch);
+        $created = 0;
+        $updated = 0;
+
+        foreach ($batch as $cardData) {
+            $key = $this->matchKey($cardData['identifiers']['scryfallId'], $cardData['side'] ?? null);
+
+            $card = $existing[$key] ?? null;
+
+            if ($card === null) {
+                $card = new Card();
+                $card->setId($cardData['uuid']);
+                $this->em->persist($card);
+                // Later occurrences of the same print in this batch must update
+                // this instance instead of creating a second row.
+                $existing[$key] = $card;
+                $created++;
+            } else {
+                $updated++;
+            }
+
+            $this->populateCard($card, $cardData);
+        }
+
+        $this->em->flush();
+        $this->em->clear();
+
+        return [$created, $updated];
+    }
+
+    /**
+     * Matches batch entries against existing rows by (scryfallId, side), with a
+     * fallback on the MTGJSON uuid for legacy rows that lack a Scryfall id.
+     *
+     * @return array<string, Card>
+     */
+    private function findExisting(array $batch): array
+    {
+        $repo = $this->em->getRepository(Card::class);
+
+        $scryfallIds = array_values(array_unique(array_map(
+            static fn (array $cardData) => $cardData['identifiers']['scryfallId'],
+            $batch
+        )));
+        $uuids = array_column($batch, 'uuid');
+
+        $existing = [];
+
+        foreach ($repo->findBy(['scryfallId' => $scryfallIds]) as $card) {
+            $key = $this->matchKey($card->getScryfallId(), $card->getSide());
+
+            // Legacy duplicates can share a Scryfall id; prefer the row whose
+            // uuid still matches the current MTGJSON data.
+            if (isset($existing[$key]) && in_array($existing[$key]->getMtgjsonUuid(), $uuids, true)) {
+                continue;
+            }
+
+            $existing[$key] = $card;
+        }
+
+        foreach ($repo->findBy(['mtgjsonUuid' => $uuids]) as $card) {
+            if ($card->getScryfallId() !== null) {
+                continue;
+            }
+
+            foreach ($batch as $cardData) {
+                if ($cardData['uuid'] === $card->getMtgjsonUuid()) {
+                    $key = $this->matchKey($cardData['identifiers']['scryfallId'], $cardData['side'] ?? null);
+                    $existing[$key] ??= $card;
+
+                    break;
+                }
+            }
+        }
+
+        return $existing;
+    }
+
+    private function matchKey(string $scryfallId, ?string $side): string
+    {
+        return strtolower($scryfallId) . '|' . ($side ?? '');
+    }
+
+    private function populateCard(Card $card, array $cardData): void
+    {
+        $card
+            ->setArtist($cardData['artist'] ?? '')
+            ->setBorderColor($cardData['borderColor'])
+            ->setColorIdentity($cardData['colorIdentity'])
+            ->setColors($cardData['colors'])
+            ->setConvertedManaCost((float) ($cardData['convertedManaCost'] ?? 0))
+            ->setFrameVersion($cardData['frameVersion'])
+            ->setMtgjsonUuid($cardData['uuid'])
+            ->setScryfallId($cardData['identifiers']['scryfallId'])
+            ->setScryfallIllustrationId($cardData['identifiers']['scryfallIllustrationId'] ?? null)
+            ->setScryfallOracleId($cardData['identifiers']['scryfallOracleId'] ?? null)
+            ->setLayout($cardData['layout'])
+            ->setManaCost($cardData['manaCost'] ?? '{0}')
+            ->setNumber($cardData['number'])
+            ->setPrintings(array_map('strtolower', $cardData['printings'] ?? [$cardData['setCode']]))
+            ->setRarity($cardData['rarity'] ?? 'common')
+            ->setSetCode(strtolower($cardData['setCode']))
+            ->setSubtypes($cardData['subtypes'])
+            ->setSupertypes($cardData['supertypes'])
+            ->setTypes($cardData['types'])
+            ->setSide($cardData['side'] ?? null)
+            ->setFinishes($this->effectiveFinishes($cardData))
+        ;
+
+        $card->getEnTexts()
+            ->setMultiverseId($cardData['identifiers']['multiverseId'] ?? null)
+            ->setName($cardData['name'])
+            ->setType($cardData['type'])
+            ->setFlavorText($cardData['flavorText'] ?? '')
+            ->setText($cardData['text'] ?? '')
+        ;
+
+        foreach ($cardData['foreignData'] ?? [] as $foreignCardData) {
+            $language = $this->languageMapper->languageToCode($foreignCardData['language']);
+
+            /** @var CardLanguageData $languageData */
+            $languageData = $card->{'get' . ucfirst($language) . 'Texts'}();
+
+            $languageData
+                ->setMultiverseId($foreignCardData['multiverseId'] ?? null)
+                ->setName($foreignCardData['name'])
+                ->setType($foreignCardData['type'] ?? '')
+                ->setFlavorText($foreignCardData['flavorText'] ?? '')
+                ->setText($foreignCardData['text'] ?? '')
+            ;
+        }
+    }
+
+    /** @return string[] */
+    private function effectiveFinishes(array $cardData): array
+    {
+        $finishes = $cardData['finishes'] ?? [];
+        $treatments = array_values(array_intersect($cardData['promoTypes'] ?? [], self::FOIL_TREATMENTS));
+
+        if ($treatments === []) {
+            return $finishes;
+        }
+
+        // A foil treatment describes what the card's foil actually is, so it
+        // replaces the generic "foil" entry.
+        $finishes = array_values(array_diff($finishes, ['foil']));
+
+        return array_merge($finishes, $treatments);
     }
 }

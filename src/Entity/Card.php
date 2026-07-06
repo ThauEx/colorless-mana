@@ -9,6 +9,9 @@ use Doctrine\ORM\Mapping\Embedded;
 
 #[ORM\Table(name: 'cards')]
 #[ORM\Index(columns: ['scryfall_oracle_id', 'en_name', 'es_name', 'fr_name', 'de_name', 'it_name', 'pt_name', 'ja_name', 'ko_name', 'ru_name', 'zhs_name', 'zht_name', 'he_name', 'la_name', 'grc_name', 'ar_name', 'sa_name', 'ph_name'], flags: ['fulltext'])]
+#[ORM\Index(columns: ['mtgjson_uuid'])]
+#[ORM\Index(columns: ['scryfall_id'])]
+#[ORM\Index(columns: ['set_code', 'number'])]
 #[ORM\Entity(repositoryClass: CardRepository::class)]
 class Card
 {
@@ -73,6 +76,16 @@ class Card
 
     #[ORM\Column(type: Types::STRING, length: 1, nullable: true)]
     private ?string $side;
+
+    // Current MTGJSON uuid; MTGJSON regenerates it when card data changes, so it
+    // can differ from the immutable primary key. Price data is matched against it.
+    #[ORM\Column(type: 'uuid', nullable: true)]
+    private ?string $mtgjsonUuid = null;
+
+    // Effective finishes: MTGJSON "finishes" merged with foil-like promo types
+    // (e.g. surgefoil, galaxyfoil)
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    private ?array $finishes = [];
 
     #[Embedded(class: CardPrice::class, columnPrefix: 'cardkingdom_')]
     private CardPrice $cardkingdomPrices;
@@ -398,6 +411,30 @@ class Card
     public function setSide(?string $side): self
     {
         $this->side = $side;
+
+        return $this;
+    }
+
+    public function getMtgjsonUuid(): ?string
+    {
+        return $this->mtgjsonUuid;
+    }
+
+    public function setMtgjsonUuid(?string $mtgjsonUuid): self
+    {
+        $this->mtgjsonUuid = $mtgjsonUuid;
+
+        return $this;
+    }
+
+    public function getFinishes(): array
+    {
+        return $this->finishes ?? [];
+    }
+
+    public function setFinishes(array $finishes): self
+    {
+        $this->finishes = $finishes;
 
         return $this;
     }
