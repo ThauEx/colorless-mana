@@ -43,11 +43,10 @@
                                     <th></th>
                                     <th>{{ 'form.cards.collection.search.order_choices.name'|trans }}</th>
                                     <th>{{ 'form.cards.collection.search.order_choices.quantity'|trans }}</th>
-                                    <th>{{ 'form.cards.collection.search.order_choices.foil_quantity'|trans }}</th>
+                                    <th>{{ 'form.cards.collection.search.order_choices.finish'|trans }}</th>
                                     <th>{{ 'form.cards.collection.search.order_choices.set_code'|trans }}</th>
                                     <th>{{ 'form.cards.collection.search.order_choices.language'|trans }}</th>
                                     <th>{{ 'form.cards.collection.search.order_choices.price'|trans }}</th>
-                                    <th>{{ 'form.cards.collection.search.order_choices.foil_price'|trans }}</th>
                                     <th>{{ 'form.cards.collection.search.order_choices.owner'|trans }}</th>
                                     <th></th>
                                 </tr>
@@ -70,23 +69,16 @@
                                         </button>
                                     </td>
                                     <td>{{ item.card.texts(lang).name }}</td>
-                                    <td>{{ item.nonFoilQuantity }}</td>
-                                    <td>{{ item.foilQuantity }}</td>
+                                    <td>{{ item.quantity }}</td>
+                                    <td>{{ ('card.finish.' ~ item.finish)|trans }}</td>
                                     <td class="row-icon">
                                         <span class="set-icon">{{ item.card.setCode|lower|set_icon }}</span>
                                     </td>
                                     <td>{{ item.language|flag }}</td>
+                                    {% set effectivePrice = item.foil ? item.card.cardmarketPrices.priceFoil : item.card.cardmarketPrices.priceNormal %}
                                     <td>
-                                        {% if item.card.cardmarketPrices.priceNormal ?? false %}
-                                            Ø {{ item.card.cardmarketPrices.priceNormal|format_currency('EUR') }}
-                                        {% else  %}
-                                            -
-                                        {% endif %}
-
-                                    </td>
-                                    <td>
-                                        {% if item.card.cardmarketPrices.priceFoil ?? false %}
-                                            Ø {{ item.card.cardmarketPrices.priceFoil|format_currency('EUR') }}
+                                        {% if effectivePrice ?? false %}
+                                            Ø {{ effectivePrice|format_currency('EUR') }}
                                         {% else  %}
                                             -
                                         {% endif %}

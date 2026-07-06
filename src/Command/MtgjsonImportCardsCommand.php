@@ -22,29 +22,18 @@ class MtgjsonImportCardsCommand extends Command
 {
     private const BATCH_SIZE = 250;
 
-    // Promo types that describe a special foil treatment. They replace the plain
-    // "foil" entry so the collection can distinguish e.g. surge foil from foil.
-    private const FOIL_TREATMENTS = [
-        'surgefoil',
-        'galaxyfoil',
-        'silverfoil',
-        'rainbowfoil',
-        'ripplefoil',
+    // Foil treatments whose promo type name does not follow the "*foil" /
+    // "neonink*" naming; see isFoilTreatment()
+    private const EXTRA_FOIL_TREATMENTS = [
         'doublerainbow',
-        'halofoil',
-        'confettifoil',
-        'fracturefoil',
-        'manafoil',
-        'dragonscalefoil',
-        'raisedfoil',
-        'texturedfoil',
-        'stepandcompleat',
-        'oilslick',
-        'neonink',
-        'gilded',
         'embossed',
+        'gilded',
+        'glossy',
         'invisibleink',
-        'firstplacefoil',
+        'metal',
+        'oilslick',
+        'stepandcompleat',
+        'textured',
     ];
 
     public function __construct(
@@ -239,10 +228,23 @@ class MtgjsonImportCardsCommand extends Command
     private function effectiveFinishes(array $cardData): array
     {
         $finishes = $cardData['finishes'] ?? [];
-        $treatments = array_values(array_intersect($cardData['promoTypes'] ?? [], self::FOIL_TREATMENTS));
+        $treatments = array_values(array_filter($cardData['promoTypes'] ?? [], $this->isFoilTreatment(...)));
 
         if ($treatments === []) {
             return $finishes;
+        }
+
+        // "raisedfoil" only describes the texture of another treatment (e.g.
+        // oil slick raised foil) and the plain "neonink" tag always accompanies
+        // its color variant; neither is a finish of its own then
+        if (count($treatments) > 1) {
+            $treatments = array_values(array_diff($treatments, ['raisedfoil', 'neonink']));
+        }
+
+        // The remaining treatments describe a single physical finish
+        if (count($treatments) > 1) {
+            sort($treatments);
+            $treatments = [implode('+', $treatments)];
         }
 
         // A foil treatment describes what the card's foil actually is, so it
@@ -250,5 +252,12 @@ class MtgjsonImportCardsCommand extends Command
         $finishes = array_values(array_diff($finishes, ['foil']));
 
         return array_merge($finishes, $treatments);
+    }
+
+    private function isFoilTreatment(string $promoType): bool
+    {
+        return str_ends_with($promoType, 'foil')
+            || str_starts_with($promoType, 'neonink')
+            || in_array($promoType, self::EXTRA_FOIL_TREATMENTS, true);
     }
 }

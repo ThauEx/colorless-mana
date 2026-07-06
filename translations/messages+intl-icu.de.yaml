@@ -10,6 +10,7 @@ form:
         include: alle enthalten
         at_most: mindestens eine
     rarities: Seltenheiten
+    finishes: Finishes
     set_codes: Editionen
     languages: Sprachen
     cards:
@@ -23,23 +24,14 @@ form:
                     id: 'Importiert'
                     name: Name
                     quantity: Anzahl
-                    foil_quantity: Foil Anzahl
+                    finish: Finish
                     rarity: Seltenheit
                     set_code: Edition
                     language: Sprache
                     mana_cost: Manakosten
                     type: Typ
                     price: Preis
-                    foil_price: Foil Preis
                     owner: Besitzer
-                is_normal: Normal
-                is_normal_choices:
-                    yes: Ja
-                    no: Nein
-                is_foil: Foil
-                is_foil_choices:
-                    yes: Ja
-                    no: Nein
                 direction: Sortierrichtung
                 direction_choices:
                     auto: Auto
@@ -60,8 +52,8 @@ form:
         languages:
             available: verfügbar
             unavailable: nicht verfügbar
-        non_foil_quantity: Nicht Foil Anzahl
-        foil_quantity: Foil Anzahl
+        finish: Finish
+        quantity: Anzahl
         owner: Besitzer
         save: Speichern
     card_search:
@@ -134,6 +126,47 @@ card:
         r: Rot
         u: Blau
         w: Weiß
+    finish:
+        nonfoil: Normal
+        foil: Foil
+        etched: Etched Foil
+        signed: Signiert
+        glossy: Glossy
+        surgefoil: Surge Foil
+        galaxyfoil: Galaxy Foil
+        silverfoil: Silver Foil
+        rainbowfoil: Rainbow Foil
+        ripplefoil: Ripple Foil
+        doublerainbow: Double Rainbow Foil
+        halofoil: Halo Foil
+        confettifoil: Confetti Foil
+        fracturefoil: Fracture Foil
+        manafoil: Mana Foil
+        dragonscalefoil: Dragon Scale Foil
+        raisedfoil: Raised Foil
+        textured: Textured Foil
+        stepandcompleat: Step-and-Compleat Foil
+        oilslick: Oil Slick Foil
+        neonink: Neon Ink
+        neoninkblue: Neon Ink (Blau)
+        neoninkgreen: Neon Ink (Grün)
+        neoninkred: Neon Ink (Rot)
+        neoninkyellow: Neon Ink (Gelb)
+        neoninkpink: Neon Ink (Pink)
+        neoninkpurple: Neon Ink (Lila)
+        neoninkmulticolor: Neon Ink (Mehrfarbig)
+        neoninkrainbow: Neon Ink (Regenbogen)
+        neoninkthreecolor: Neon Ink (Dreifarbig)
+        chocobotrackfoil: Chocobo Track Foil
+        cosmicfoil: Cosmic Foil
+        dazzlefoil: Dazzle Foil
+        facetfoil: Facet Foil
+        singularityfoil: Singularity Foil
+        metal: Metall
+        gilded: Gilded Foil
+        embossed: Embossed
+        invisibleink: Invisible Ink
+        firstplacefoil: First Place Foil
     rarity:
         common: häufig
         uncommon: nicht ganz so häufig

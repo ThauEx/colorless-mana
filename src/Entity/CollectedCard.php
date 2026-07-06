@@ -8,9 +8,12 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Table(name: 'collected_cards')]
 #[ORM\Index(columns: ['edition', 'number', 'language'])]
+#[ORM\UniqueConstraint(name: 'uniq_collected_card_entry', columns: ['user_id', 'card_id', 'language', 'finish'])]
 #[ORM\Entity(repositoryClass: CollectedCardRepository::class)]
 class CollectedCard
 {
+    public const FINISH_NONFOIL = 'nonfoil';
+
     #[ORM\Column(name: 'id', type: Types::INTEGER)]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
@@ -25,11 +28,11 @@ class CollectedCard
     #[ORM\Column(name: 'language', type: Types::STRING, length: 3)]
     private string $language;
 
-    #[ORM\Column(name: 'non_foil_quantity', type: Types::INTEGER)]
-    private int $nonFoilQuantity;
+    #[ORM\Column(name: 'finish', type: Types::STRING, length: 32, options: ['default' => self::FINISH_NONFOIL])]
+    private string $finish = self::FINISH_NONFOIL;
 
-    #[ORM\Column(name: 'foil_quantity', type: Types::INTEGER)]
-    private int $foilQuantity;
+    #[ORM\Column(name: 'quantity', type: Types::INTEGER, options: ['default' => 0])]
+    private int $quantity = 0;
 
     #[ORM\ManyToOne(targetEntity: User::class, fetch: 'EXTRA_LAZY', inversedBy: 'collectedCards')]
     #[ORM\JoinColumn(nullable: false)]
@@ -79,26 +82,31 @@ class CollectedCard
         return $this;
     }
 
-    public function getNonFoilQuantity(): int
+    public function getFinish(): string
     {
-        return $this->nonFoilQuantity;
+        return $this->finish;
     }
 
-    public function setNonFoilQuantity(int $nonFoilQuantity): self
+    public function setFinish(string $finish): self
     {
-        $this->nonFoilQuantity = $nonFoilQuantity;
+        $this->finish = $finish;
 
         return $this;
     }
 
-    public function getFoilQuantity(): int
+    public function isFoil(): bool
     {
-        return $this->foilQuantity;
+        return $this->finish !== self::FINISH_NONFOIL;
     }
 
-    public function setFoilQuantity(int $foilQuantity): self
+    public function getQuantity(): int
     {
-        $this->foilQuantity = $foilQuantity;
+        return $this->quantity;
+    }
+
+    public function setQuantity(int $quantity): self
+    {
+        $this->quantity = $quantity;
 
         return $this;
     }

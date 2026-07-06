@@ -62,19 +62,23 @@
                                 <p class="text-center">
                                     {{ item.setCode|set_name }} ({{ item.setCode }}) {{ item.number }}
                                 </p>
+                                {% set finishes = item.finishes is not empty ? item.finishes : ['nonfoil', 'foil'] %}
                                 {% for lang in item.cardLanguages %}
                                     <form action="{{ path('collection_add') }}" method="get">
                                         <div class="text-center">
                                             <label for="{{ item.id }}_{{ lang }}">{{ item.texts(lang).name }} ({{ lang }})</label>
                                         </div>
-                                        <div class="input-group">
-                                            <input type="hidden" name="setCode" value="{{ item.setCode }}">
-                                            <input type="hidden" name="number" value="{{ item.number }}">
-                                            <input type="hidden" name="lang" value="{{ lang }}">
+                                        <input type="hidden" name="setCode" value="{{ item.setCode }}">
+                                        <input type="hidden" name="number" value="{{ item.number }}">
+                                        <input type="hidden" name="lang" value="{{ lang }}">
 
-                                            <input type="number" name="nonFoilAmount" class="form-control" min="0" value="0" id="{{ item.id }}_{{ lang }}">
-                                            <span class="input-group-text">{{ 'cards.search.foil'|trans }}</span>
-                                            <input type="number" name="foilAmount" class="form-control" min="0" value="0" id="{{ item.id }}_{{ lang }}">
+                                        {% for finish in finishes %}
+                                            <div class="input-group mb-1">
+                                                <span class="input-group-text w-50">{{ ('card.finish.' ~ finish)|trans }}</span>
+                                                <input type="number" name="amounts[{{ finish }}]" class="form-control" min="0" value="0" id="{{ item.id }}_{{ lang }}_{{ finish }}">
+                                            </div>
+                                        {% endfor %}
+                                        <div class="d-grid mb-3">
                                             <button type="submit" class="btn btn-primary" title="Hinzufügen">
                                                 <svg class="bi d-block mx-auto mb-1" width="24" height="24"><use xlink:href="#journal-plus"></use></svg>
                                             </button>

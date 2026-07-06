@@ -56,24 +56,26 @@
                     <th>#</th>
                     <th>{{ 'form.cards.collection.search.order_choices.name'|trans }}</th>
                     <th>{{ 'form.cards.collection.search.order_choices.quantity'|trans }}</th>
-                    <th>{{ 'form.cards.collection.search.order_choices.foil_quantity'|trans }}</th>
+                    <th>{{ 'form.cards.collection.search.order_choices.finish'|trans }}</th>
                     <th>{{ 'form.cards.collection.search.order_choices.rarity'|trans }}</th>
                     <th>{{ 'form.cards.collection.search.order_choices.set_code'|trans }}</th>
                     <th>{{ 'form.cards.collection.search.order_choices.language'|trans }}</th>
                     <th>{{ 'form.cards.collection.search.order_choices.mana_cost'|trans }}</th>
                     <th>{{ 'form.cards.collection.search.order_choices.type'|trans }}</th>
                     <th>{{ 'form.cards.collection.search.order_choices.price'|trans }}</th>
-                    <th>{{ 'form.cards.collection.search.order_choices.foil_price'|trans }}</th>
                 </tr>
             </thead>
             <tbody>
             {% endif %}
             {% set lang = item.language in item.card.cardLanguages() ? item.language : '' %}
-                <tr data-bs-toggle="collapse" data-bs-target="#collapse{{ item.card.id }}-{{ item.language }}">
+                <tr data-bs-toggle="collapse" data-bs-target="#collapse{{ item.card.id }}-{{ item.language }}-{{ item.finish }}">
                     <td></td>
                     <td>{{ item.card.texts(lang).name }}</td>
-                    <td>{{ item.nonFoilQuantity }}</td>
-                    <td>{{ item.foilQuantity }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>
+                        {% if item.foil %}<span class="badge bg-warning text-dark">{{ ('card.finish.' ~ item.finish)|trans }}</span>
+                        {% else %}{{ ('card.finish.' ~ item.finish)|trans }}{% endif %}
+                    </td>
                     <td>{{ ('card.rarity.' ~ item.card.rarity)|trans }}</td>
                     <td class="row-icon">
                         <span class="set-icon">{{ item.card.setCode|lower|set_icon }}</span>
@@ -85,24 +87,17 @@
                         {{ item.card.manaCost|symbology_icon }}
                     </td>
                     <td>{{ item.card.texts(lang).type }}</td>
+                    {% set effectivePrice = item.foil ? item.card.cardmarketPrices.priceFoil : item.card.cardmarketPrices.priceNormal %}
                     <td>
-                        {% if item.card.cardmarketPrices.priceNormal ?? false %}
-                            Ø {{ item.card.cardmarketPrices.priceNormal|format_currency('EUR') }}
-                        {% else  %}
-                            -
-                        {% endif %}
-
-                    </td>
-                    <td>
-                        {% if item.card.cardmarketPrices.priceFoil ?? false %}
-                            Ø {{ item.card.cardmarketPrices.priceFoil|format_currency('EUR') }}
+                        {% if effectivePrice ?? false %}
+                            Ø {{ effectivePrice|format_currency('EUR') }}
                         {% else  %}
                             -
                         {% endif %}
                     </td>
                 </tr>
-                <tr class="collapse" id="collapse{{ item.card.id }}-{{ item.language }}">
-                    <td colspan="11">
+                <tr class="collapse" id="collapse{{ item.card.id }}-{{ item.language }}-{{ item.finish }}">
+                    <td colspan="10">
                         <div class="row">
                             <div class="col-md-3 card-image">
                                 {% if item.card.side is not empty %}
@@ -137,7 +132,7 @@
             </tbody>
             <tfoot>
                 <tr>
-                    <td colspan="11">
+                    <td colspan="10">
                         <div class="navigation">
                             {{ pagerfanta(pager) }}
                         </div>

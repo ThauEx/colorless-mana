@@ -47,6 +47,8 @@ class CollectedCardType extends AbstractType
             $editions[$label] = $print['setCode'] . '-' . $print['number'];
         }
 
+        ksort($editions, SORT_NATURAL | SORT_FLAG_CASE);
+
         $languages = [
             'form.card_edit.languages.available'   => [],
             'form.card_edit.languages.unavailable' => [],
@@ -82,20 +84,18 @@ class CollectedCardType extends AbstractType
                 ]
             )
             ->add(
-                'nonFoilQuantity',
-                IntegerType::class,
+                'finish',
+                ChoiceType::class,
                 [
-                    'label' => 'form.card_edit.non_foil_quantity',
-                    'attr'  => [
-                        'min' => 0,
-                    ],
+                    'label'   => 'form.card_edit.finish',
+                    'choices' => $this->finishChoices($collectedCard),
                 ]
             )
             ->add(
-                'foilQuantity',
+                'quantity',
                 IntegerType::class,
                 [
-                    'label' => 'form.card_edit.foil_quantity',
+                    'label' => 'form.card_edit.quantity',
                     'attr'  => [
                         'min' => 0,
                     ],
@@ -124,6 +124,26 @@ class CollectedCardType extends AbstractType
                 ]
             )
         ;
+    }
+
+    /**
+     * Only the finishes this card was actually printed in, plus the entry's
+     * current finish so legacy data stays selectable.
+     */
+    private function finishChoices(CollectedCard $collectedCard): array
+    {
+        $finishes = $collectedCard->getCard()?->getFinishes() ?: [CollectedCard::FINISH_NONFOIL, 'foil'];
+
+        if (!in_array($collectedCard->getFinish(), $finishes, true)) {
+            $finishes[] = $collectedCard->getFinish();
+        }
+
+        $choices = [];
+        foreach ($finishes as $finish) {
+            $choices['card.finish.' . $finish] = $finish;
+        }
+
+        return $choices;
     }
 
     public function configureOptions(OptionsResolver $resolver): void

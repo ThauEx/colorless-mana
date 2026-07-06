@@ -313,6 +313,39 @@ dd($results);
         });
     }
 
+    /** @return string[] distinct finishes in the collection, nonfoil first */
+    public function getCardFinishes(?UserInterface $user = null): array
+    {
+        $id = 'all';
+        if ($user) {
+            $id = $user->getId();
+        }
+
+        return $this->cache->get('card_finishes_' . $id, function () use ($user) {
+            $qb = $this->em->getRepository(CollectedCard::class)->createQueryBuilder('c')
+                ->select('c.finish')
+                ->distinct()
+                ->orderBy('c.finish')
+            ;
+
+            if ($user) {
+                $qb
+                    ->where('c.user = :user')
+                    ->setParameter('user', $user)
+                ;
+            }
+
+            $finishes = array_column($qb->getQuery()->getScalarResult(), 'finish');
+
+            usort($finishes, static function (string $a, string $b) {
+                return ($a === CollectedCard::FINISH_NONFOIL ? 0 : 1) <=> ($b === CollectedCard::FINISH_NONFOIL ? 0 : 1)
+                    ?: strcmp($a, $b);
+            });
+
+            return $finishes;
+        });
+    }
+
     public function getCardQuantities(?UserInterface $user = null): array
     {
         $id = 'all';
@@ -323,9 +356,8 @@ dd($results);
         return $this->cache->get('card_quantities_' . $id, function () use ($user) {
             $repo = $this->em->getRepository(CollectedCard::class);
             $qb = $repo->createQueryBuilder('c')
-                ->select('SUM(c.nonFoilQuantity) as nonFoil')
-                ->addSelect('SUM(c.foilQuantity) as foil')
-                ->distinct()
+                ->select("SUM(CASE WHEN c.finish = 'nonfoil' THEN c.quantity ELSE 0 END) as nonFoil")
+                ->addSelect("SUM(CASE WHEN c.finish != 'nonfoil' THEN c.quantity ELSE 0 END) as foil")
             ;
 
             if ($user) {
@@ -350,9 +382,8 @@ dd($results);
             $repo = $this->em->getRepository(CollectedCard::class);
             $qb = $repo->createQueryBuilder('c')
                 ->join('c.card', 'ca')
-                ->select('SUM(c.nonFoilQuantity * ca.cardmarketPrices.priceNormal) as nonFoil')
-                ->addSelect('SUM(c.foilQuantity * ca.cardmarketPrices.priceFoil) as foil')
-                ->distinct()
+                ->select("SUM(CASE WHEN c.finish = 'nonfoil' THEN c.quantity * ca.cardmarketPrices.priceNormal ELSE 0 END) as nonFoil")
+                ->addSelect("SUM(CASE WHEN c.finish != 'nonfoil' THEN c.quantity * ca.cardmarketPrices.priceFoil ELSE 0 END) as foil")
             ;
 
             if ($user) {
@@ -375,6 +406,7 @@ dd($results);
             'card_rarities_',
             'card_set_codes_',
             'card_languages_',
+            'card_finishes_',
             'card_quantities_',
             'card_total_prices_',
         ];

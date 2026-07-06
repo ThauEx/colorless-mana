@@ -239,20 +239,21 @@ class CollectionController extends AbstractController
             'number'  => $data['number'],
         ]);
 
-        $data['nonFoilAmount'] = (int) $data['nonFoilAmount'];
-        $data['foilAmount'] = (int) $data['foilAmount'];
+        $amounts = array_filter(array_map('intval', (array) ($data['amounts'] ?? [])));
 
-        if (!$card || ($data['nonFoilAmount'] === 0 && $data['foilAmount'] === 0)) {
+        if (!$card || $amounts === []) {
             throw $this->createNotFoundException();
         }
 
-        $collectionManager->addCard(
-            $this->getUser(),
-            $card,
-            $data['lang'],
-            $data['nonFoilAmount'],
-            $data['foilAmount']
-        );
+        $available = $card->getFinishes() ?: [CollectedCard::FINISH_NONFOIL, 'foil'];
+
+        foreach ($amounts as $finish => $quantity) {
+            if (!in_array($finish, $available, true)) {
+                throw $this->createNotFoundException();
+            }
+
+            $collectionManager->addCard($this->getUser(), $card, $data['lang'], $finish, $quantity);
+        }
 
         $this->collectionStatsProvider->reset($this->getUser());
 

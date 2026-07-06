@@ -124,9 +124,13 @@ class CardRepository extends ServiceEntityRepository
         }
 
         if (!empty($number)) {
+            // Foil-only variants use a "★" suffix; match both so users do not
+            // have to type the star
+            $number = rtrim(ltrim(trim($number), '0'), '★');
+
             $qb
-                ->andWhere('c.number = :number')
-                ->setParameter('number', ltrim($number, '0'))
+                ->andWhere($qb->expr()->in('c.number', ':numbers'))
+                ->setParameter('numbers', [$number, $number . '★'])
             ;
         }
 

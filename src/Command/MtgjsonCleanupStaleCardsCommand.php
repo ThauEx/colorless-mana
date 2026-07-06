@@ -48,7 +48,19 @@ class MtgjsonCleanupStaleCardsCommand extends Command
             return Command::FAILURE;
         }
 
-        $successorJoin = 'LEFT JOIN cards cur ON cur.scryfall_id = c.scryfall_id AND cur.finishes IS NOT NULL AND COALESCE(cur.side, \'\') = COALESCE(c.side, \'\')';
+        // Before the primary key got changed to the scryfall id, duplicates
+        // shared a scryfall_id and references could be re-pointed to the
+        // current row.
+        // Afterwards the id itself is the Scryfall id, so a stale row has no
+        // successor and can only be an orphan.
+        $hasScryfallIdColumn = (bool) $this->connection->fetchOne(
+            "SELECT COUNT(*) FROM information_schema.columns
+             WHERE table_schema = DATABASE() AND table_name = 'cards' AND column_name = 'scryfall_id'"
+        );
+
+        $successorJoin = $hasScryfallIdColumn
+            ? 'LEFT JOIN cards cur ON cur.scryfall_id = c.scryfall_id AND cur.finishes IS NOT NULL AND COALESCE(cur.side, \'\') = COALESCE(c.side, \'\')'
+            : 'LEFT JOIN cards cur ON 1 = 0';
 
         $repointable = $this->connection->fetchAllAssociative(
             "SELECT cc.id AS cc_id, cur.id AS successor_id, cur.set_code, cur.number,
@@ -60,6 +72,7 @@ class MtgjsonCleanupStaleCardsCommand extends Command
                     ON conflict.user_id = cc.user_id
                    AND conflict.card_id = cur.id
                    AND conflict.language = cc.language
+                   AND conflict.finish = cc.finish
                    AND conflict.id != cc.id
              WHERE cur.id IS NOT NULL"
         );
@@ -114,8 +127,7 @@ class MtgjsonCleanupStaleCardsCommand extends Command
                     $this->connection->executeStatement(
                         'UPDATE collected_cards conflict
                          JOIN collected_cards cc ON cc.id = :ccId
-                         SET conflict.non_foil_quantity = conflict.non_foil_quantity + cc.non_foil_quantity,
-                             conflict.foil_quantity = conflict.foil_quantity + cc.foil_quantity
+                         SET conflict.quantity = conflict.quantity + cc.quantity
                          WHERE conflict.id = :conflictId',
                         ['ccId' => $row['cc_id'], 'conflictId' => $row['conflict_id']]
                     );

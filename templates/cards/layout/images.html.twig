@@ -43,15 +43,10 @@
                         </p>
                         <div class="row text-center">
                             <div class="col">
-                                {{ 'cards.public.normal'|trans }}: {{ item.nonFoilQuantity }}x
-                                {% if item.card.cardmarketPrices.priceNormal ?? false %}
-                                    <br>Ø {{ item.card.cardmarketPrices.priceNormal|format_currency('EUR') }}
-                                {% endif %}
-                            </div>
-                            <div class="col">
-                                {{ 'cards.public.foil'|trans }}: {{ item.foilQuantity }}x
-                                {% if item.card.cardmarketPrices.priceFoil ?? false %}
-                                    <br>Ø {{ item.card.cardmarketPrices.priceFoil|format_currency('EUR') }}
+                                {% set effectivePrice = item.foil ? item.card.cardmarketPrices.priceFoil : item.card.cardmarketPrices.priceNormal %}
+                                {{ ('card.finish.' ~ item.finish)|trans }}: {{ item.quantity }}x
+                                {% if effectivePrice ?? false %}
+                                    <br>Ø {{ effectivePrice|format_currency('EUR') }}
                                 {% endif %}
                             </div>
                         </div>

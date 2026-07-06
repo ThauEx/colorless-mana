@@ -170,42 +170,40 @@ class CollectedCardRepository extends ServiceEntityRepository
             $qb->andWhere($qb->expr()->orX(...$conditions));
         }
 
-        if (!empty($searchParams['isNormal'])) {
-            if ($searchParams['isNormal'] === 'y') {
-                $qb->andWhere($qb->expr()->gt('c.nonFoilQuantity', 0));
-            } elseif ($searchParams['isNormal'] === 'n') {
-                $qb->andWhere($qb->expr()->eq('c.nonFoilQuantity', 0));
-            }
+        if (!empty($searchParams['finishes'])) {
+            $qb
+                ->andWhere($qb->expr()->in('c.finish', ':finishes'))
+                ->setParameter('finishes', $searchParams['finishes'])
+            ;
         }
 
-        if (!empty($searchParams['isFoil'])) {
-            if ($searchParams['isFoil'] === 'y') {
-                $qb->andWhere($qb->expr()->gt('c.foilQuantity', 0));
-            } elseif ($searchParams['isFoil'] === 'n') {
-                $qb->andWhere($qb->expr()->eq('c.foilQuantity', 0));
-            }
-        }
+        // Each row has exactly one applicable price, depending on its finish
+        $effectivePrice = "(CASE WHEN c.finish = 'nonfoil' THEN ca.cardmarketPrices.priceNormal ELSE ca.cardmarketPrices.priceFoil END)";
 
         if (!empty($searchParams['order'])) {
             $direction = $searchParams['dir'] === 'desc' ? 'desc' : 'asc';
             $sort = match ($searchParams['order']) {
-                'id'           => 'c.id',
-                'quantity'     => 'c.nonFoilQuantity',
-                'foilQuantity' => 'c.foilQuantity',
-                'rarity'       => 'ca.rarity',
-                'setCode'      => 'ca.setCode',
-                'language'     => 'c.language',
-                'manaCost'     => 'ca.manaCost',
-                'type'         => 'ca.types',
-                'price'        => 'ca.cardmarketPrices.priceNormal',
-                'foilPrice'    => 'ca.cardmarketPrices.priceFoil',
-                default        => '',
+                'id'       => 'c.id',
+                'quantity' => 'c.quantity',
+                'finish'   => 'c.finish',
+                'rarity'   => 'ca.rarity',
+                'setCode'  => 'ca.setCode',
+                'language' => 'c.language',
+                'manaCost' => 'ca.manaCost',
+                'type'     => 'ca.types',
+                'price'    => 'effectivePrice',
+                default    => '',
             };
 
             if ($sort === '') {
                 $qb
                     ->orderBy('ca.setCode', $direction)
                     ->addOrderBy('ca.number', $direction)
+                ;
+            } elseif ($sort === 'effectivePrice') {
+                $qb
+                    ->addSelect($effectivePrice . ' AS HIDDEN effectivePrice')
+                    ->orderBy('effectivePrice', $direction)
                 ;
             } else {
                 $qb->orderBy($sort, $direction);

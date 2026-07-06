@@ -50,6 +50,7 @@ class CollectionSearchType extends AbstractType
         $rarities = $this->collectionStatsProvider->getCardRarities($user);
         $setCodes = $this->collectionStatsProvider->getCardSetCodes($user, $sets);
         $languages = $this->collectionStatsProvider->getCardLanguages($user);
+        $finishes = $this->collectionStatsProvider->getCardFinishes($user);
 
         if (!$user) {
             $users = [];
@@ -95,14 +96,13 @@ class CollectionSearchType extends AbstractType
                         'form.cards.collection.search.order_choices.standard'      => '',
                         'form.cards.collection.search.order_choices.id'            => 'id',
                         'form.cards.collection.search.order_choices.quantity'      => 'quantity',
-                        'form.cards.collection.search.order_choices.foil_quantity' => 'foilQuantity',
+                        'form.cards.collection.search.order_choices.finish'        => 'finish',
                         'form.cards.collection.search.order_choices.rarity'        => 'rarity',
                         'form.cards.collection.search.order_choices.set_code'      => 'setCode',
                         'form.cards.collection.search.order_choices.language'      => 'language',
                         'form.cards.collection.search.order_choices.mana_cost'     => 'manaCost',
                         'form.cards.collection.search.order_choices.type'          => 'type',
                         'form.cards.collection.search.order_choices.price'         => 'price',
-                        'form.cards.collection.search.order_choices.foil_price'    => 'foilPrice',
                     ],
                 ]
             )
@@ -259,27 +259,20 @@ class CollectionSearchType extends AbstractType
                 ]
             )
             ->add(
-                'isNormal',
+                'finishes',
                 ChoiceType::class,
                 [
-                    'required' => false,
-                    'label'    => 'form.cards.collection.search.is_normal',
-                    'choices'  => [
-                        'form.cards.collection.search.is_normal_choices.yes' => 'y',
-                        'form.cards.collection.search.is_normal_choices.no'  => 'n',
-                    ]
-                ]
-            )
-            ->add(
-                'isFoil',
-                ChoiceType::class,
-                [
-                    'required' => false,
-                    'label'    => 'form.cards.collection.search.is_foil',
-                    'choices'  => [
-                        'form.cards.collection.search.is_foil_choices.yes' => 'y',
-                        'form.cards.collection.search.is_foil_choices.no'  => 'n',
-                    ]
+                    'required'    => false,
+                    'label'       => 'form.finishes',
+                    'choices'     => array_combine(array_map(static function (string $finish) {
+                        return 'card.finish.' . $finish;
+                    }, $finishes), $finishes),
+                    'placeholder' => 'Alle',
+                    'expanded'    => false,
+                    'multiple'    => true,
+                    'attr'        => [
+                        'class' => 'js-select js-select-finishes',
+                    ],
                 ]
             )
         ;

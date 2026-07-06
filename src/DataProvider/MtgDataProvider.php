@@ -111,18 +111,28 @@ class MtgDataProvider
                 continue;
             }
 
-            $key = $card->getId() . '|' . $item['language'];
+            // Foil-only variants live as separate "★" cards; scanning tools
+            // usually export them under the plain number
+            $starCard = $this->resolveCard($cardsByKey, ['setCode' => $item['setCode'], 'number' => $item['number'] . '★']);
 
-            if (!isset($collection[$key])) {
-                $collection[$key] = $this->collectionManager->createCollectedCard($user, $card, $item['language']);
+            $entries = [
+                [...$this->collectionManager->resolveTarget($card, false), $item['nonFoilQuantity']],
+                [...$this->collectionManager->resolveTarget($card, true, $starCard), $item['foilQuantity']],
+            ];
+
+            foreach ($entries as [$targetCard, $finish, $quantity]) {
+                $key = $targetCard->getId() . '|' . $item['language'] . '|' . $finish;
+
+                if (!isset($collection[$key])) {
+                    if ($quantity === 0) {
+                        continue;
+                    }
+
+                    $collection[$key] = $this->collectionManager->createCollectedCard($user, $targetCard, $item['language'], $finish);
+                }
+
+                $this->collectionManager->applyQuantity($collection[$key], $quantity, $updateOnly);
             }
-
-            $this->collectionManager->applyQuantities(
-                $collection[$key],
-                $item['nonFoilQuantity'],
-                $item['foilQuantity'],
-                $updateOnly
-            );
         }
 
         $this->em->flush();
@@ -141,6 +151,7 @@ class MtgDataProvider
 
         foreach ($csv as $item) {
             $numbersBySet[$item['setCode']][] = $item['number'];
+            $numbersBySet[$item['setCode']][] = $item['number'] . '★';
 
             if (strlen($item['setCode']) === 4 && !empty($item['number'])) {
                 $numbersBySet[$item['setCode']][] = $item['number'] . 'p';
@@ -183,7 +194,7 @@ class MtgDataProvider
         return $cards[0] ?? null;
     }
 
-    /** @return array<string, CollectedCard> the user's collection keyed by "cardId|language" */
+    /** @return array<string, CollectedCard> the user's collection keyed by "cardId|language|finish" */
     private function loadCollection(UserInterface $user): array
     {
         $rows = $this->em->getRepository(CollectedCard::class)->createQueryBuilder('cc')
@@ -197,7 +208,7 @@ class MtgDataProvider
         $collection = [];
 
         foreach ($rows as $row) {
-            $collection[$row['cardId'] . '|' . $row[0]->getLanguage()] = $row[0];
+            $collection[$row['cardId'] . '|' . $row[0]->getLanguage() . '|' . $row[0]->getFinish()] = $row[0];
         }
 
         return $collection;
