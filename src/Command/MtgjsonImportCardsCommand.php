@@ -111,7 +111,7 @@ class MtgjsonImportCardsCommand extends Command
                 }
             }
 
-            if ($batch !== []) {
+            if (!empty($batch)) {
                 [$c, $u] = $this->processBatch($batch);
                 $created += $c;
                 $updated += $u;
@@ -231,7 +231,7 @@ class MtgjsonImportCardsCommand extends Command
         $finishes = $cardData['finishes'] ?? [];
         $treatments = array_values(array_filter($cardData['promoTypes'] ?? [], $this->isFoilTreatment(...)));
 
-        if ($treatments === []) {
+        if (empty($treatments)) {
             return $finishes;
         }
 

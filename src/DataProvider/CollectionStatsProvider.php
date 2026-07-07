@@ -7,7 +7,6 @@ use Doctrine\ORM\EntityManagerInterface;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Contracts\Cache\CacheInterface;
-use Symfony\Contracts\Cache\ItemInterface;
 
 class CollectionStatsProvider
 {
@@ -25,13 +24,12 @@ class CollectionStatsProvider
         }
 
         return $this->cache->get('card_supertypes_' . $id, function () use ($user) {
-            $repo = $this->em->getRepository(CollectedCard::class);
-            $qb = $repo->createQueryBuilder('c')
-                ->select('c')
+            $qb = $this->em
+                ->getRepository(CollectedCard::class)
+                ->createQueryBuilder('c')
+                ->select('ca.supertypes')
                 ->distinct()
                 ->join('c.card', 'ca')
-                ->addSelect('ca')
-                ->groupBy('ca.supertypes', 'c.id', 'ca.id')
             ;
 
             if ($user) {
@@ -41,22 +39,14 @@ class CollectionStatsProvider
                 ;
             }
 
-            $results = $qb->getQuery()->getResult();
-
-            $types = [];
-            /** @var CollectedCard $result */
-            foreach ($results as $result) {
-                $types[] = $result->getCard()->getSupertypes();
-            }
-
-            $types = array_merge(...$types);
-            $types = array_unique($types);
+            $rows = array_column($qb->getQuery()->getArrayResult(), 'supertypes');
+            $types = empty($rows) ? [] : array_unique(array_merge(...$rows));
             natsort($types);
 
             return array_values($types);
         });
     }
-//$cache->invalidateTags(['tag_1', 'tag_3']);
+
     public function getCardTypes(?UserInterface $user = null): array
     {
         $id = 'all';
@@ -64,14 +54,13 @@ class CollectionStatsProvider
             $id = $user->getId();
         }
 
-        return $this->cache->get('card_types_' . $id, function (ItemInterface $item) use ($user) {
-            $repo = $this->em->getRepository(CollectedCard::class);
-            $qb = $repo->createQueryBuilder('c')
-                ->select('c')
+        return $this->cache->get('card_types_' . $id, function () use ($user) {
+            $qb = $this->em
+                ->getRepository(CollectedCard::class)
+                ->createQueryBuilder('c')
+                ->select('ca.types')
                 ->distinct()
                 ->join('c.card', 'ca')
-                ->addSelect('ca')
-                ->groupBy('ca.types', 'c.id', 'ca.id')
             ;
 
             if ($user) {
@@ -81,16 +70,8 @@ class CollectionStatsProvider
                 ;
             }
 
-            $results = $qb->getQuery()->getResult();
-
-            $types = [];
-            /** @var CollectedCard $result */
-            foreach ($results as $result) {
-                $types[] = $result->getCard()->getTypes();
-            }
-
-            $types = array_merge(...$types);
-            $types = array_unique($types);
+            $rows = array_column($qb->getQuery()->getArrayResult(), 'types');
+            $types = empty($rows) ? [] : array_unique(array_merge(...$rows));
             natsort($types);
 
             return array_values($types);
@@ -105,13 +86,12 @@ class CollectionStatsProvider
         }
 
         return $this->cache->get('card_subtypes_' . $id, function () use ($user) {
-            $repo = $this->em->getRepository(CollectedCard::class);
-            $qb = $repo->createQueryBuilder('c')
-                ->select('c')
+            $qb = $this->em
+                ->getRepository(CollectedCard::class)
+                ->createQueryBuilder('c')
+                ->select('ca.subtypes')
                 ->distinct()
                 ->join('c.card', 'ca')
-                ->addSelect('ca')
-                ->groupBy('ca.subtypes', 'c.id', 'ca.id')
             ;
 
             if ($user) {
@@ -121,16 +101,8 @@ class CollectionStatsProvider
                 ;
             }
 
-            $results = $qb->getQuery()->getResult();
-
-            $types = [];
-            /** @var CollectedCard $result */
-            foreach ($results as $result) {
-                $types[] = $result->getCard()->getSubtypes();
-            }
-
-            $types = array_merge(...$types);
-            $types = array_unique($types);
+            $rows = array_column($qb->getQuery()->getArrayResult(), 'subtypes');
+            $types = empty($rows) ? [] : array_unique(array_merge(...$rows));
             natsort($types);
 
             return array_values($types);
@@ -145,13 +117,12 @@ class CollectionStatsProvider
         }
 
         return $this->cache->get('card_colors_' . $id, function () use ($user) {
-            $repo = $this->em->getRepository(CollectedCard::class);
-            $qb = $repo->createQueryBuilder('c')
-                ->select('c')
+            $qb = $this->em
+                ->getRepository(CollectedCard::class)
+                ->createQueryBuilder('c')
+                ->select('ca.colors')
                 ->distinct()
                 ->join('c.card', 'ca')
-                ->addSelect('ca')
-                ->groupBy('ca.colors', 'c.id', 'ca.id')
             ;
 
             if ($user) {
@@ -161,17 +132,9 @@ class CollectionStatsProvider
                 ;
             }
 
-            $results = $qb->getQuery()->getResult();
+            $rows = array_column($qb->getQuery()->getArrayResult(), 'colors');
 
-            $types = [];
-            /** @var CollectedCard $result */
-            foreach ($results as $result) {
-                $types[] = $result->getCard()->getColors();
-            }
-
-            $types = array_merge(...$types);
-
-            return array_unique($types);
+            return empty($rows) ? [] : array_unique(array_merge(...$rows));
         });
     }
 
@@ -183,14 +146,12 @@ class CollectionStatsProvider
         }
 
         return $this->cache->get('card_rarities_' . $id, function () use ($user) {
-            $repo = $this->em->getRepository(CollectedCard::class);
-            $qb = $repo->createQueryBuilder('c');
-            $qb
-                ->select('c')
+            $qb = $this->em
+                ->getRepository(CollectedCard::class)
+                ->createQueryBuilder('c')
+                ->select('ca.rarity')
                 ->distinct()
                 ->join('c.card', 'ca')
-                ->addSelect('ca')
-                ->groupBy('ca.rarity', 'c.id', 'ca.id')
             ;
 
             if ($user) {
@@ -200,38 +161,8 @@ class CollectionStatsProvider
                 ;
             }
 
-            $results = $qb->getQuery()->getResult();
-
-            return array_map(static function (CollectedCard $collectedCard) {
-                return $collectedCard->getCard()->getRarity();
-            }, $results);
+            return array_column($qb->getQuery()->getScalarResult(), 'rarity');
         });
-    }
-
-    public function getCardRarities2(UserInterface $user): array
-    {
-//        return $this->cache->get('card_rarities_' . $user->getId(), function () use ($user) {
-            $repo = $this->em->getRepository(CollectedCard::class);
-            $qb = $repo->createQueryBuilder('c');
-            $qb
-                ->select('c')
-                ->addSelect($qb->expr()->count('ca.rarity'))
-                ->addSelect('ca.rarity')
-                ->distinct()
-                ->where('c.user = :user')
-                ->join('c.card', 'ca')
-                ->addSelect('ca')
-                ->groupBy('ca.rarity')
-                ->setParameter('user', $user)
-            ;
-
-            $results = $qb->getQuery()->getResult();
-dd($results);
-
-            return array_map(static function (CollectedCard $collectedCard) {
-                return $collectedCard->getCard()->getRarity();
-            }, $results);
-//        });
     }
 
     public function getCardSetCodes(?UserInterface $user = null, array $sets = []): array
@@ -242,13 +173,12 @@ dd($results);
         }
 
         return $this->cache->get('card_set_codes_' . $id, function () use ($user, $sets) {
-            $repo = $this->em->getRepository(CollectedCard::class);
-            $qb = $repo->createQueryBuilder('c')
-                ->select('c')
+            $qb = $this->em
+                ->getRepository(CollectedCard::class)
+                ->createQueryBuilder('c')
+                ->select('ca.setCode')
                 ->distinct()
                 ->join('c.card', 'ca')
-                ->addSelect('ca')
-                ->groupBy('c.edition', 'c.id', 'ca.id')
             ;
 
             if ($user) {
@@ -258,12 +188,8 @@ dd($results);
                 ;
             }
 
-            $results = $qb->getQuery()->getResult();
-
             $setCodes = [];
-            /** @var CollectedCard $result */
-            foreach ($results as $result) {
-                $setCode = $result->getCard()->getSetCode();
+            foreach (array_column($qb->getQuery()->getScalarResult(), 'setCode') as $setCode) {
                 if (!isset($sets[$setCode])) {
                     continue;
                 }
@@ -284,11 +210,11 @@ dd($results);
         }
 
         return $this->cache->get('card_languages_' . $id, function () use ($user) {
-            $repo = $this->em->getRepository(CollectedCard::class);
-            $qb = $repo->createQueryBuilder('c')
-                ->select('c')
+            $qb = $this->em
+                ->getRepository(CollectedCard::class)
+                ->createQueryBuilder('c')
+                ->select('c.language')
                 ->distinct()
-                ->groupBy('c.language', 'c.id')
             ;
 
             if ($user) {
@@ -298,12 +224,8 @@ dd($results);
                 ;
             }
 
-            $results = $qb->getQuery()->getResult();
-
             $languages = [];
-            /** @var CollectedCard $result */
-            foreach ($results as $result) {
-                $language = $result->getLanguage();
+            foreach (array_column($qb->getQuery()->getScalarResult(), 'language') as $language) {
                 $languages['language.' . $language] = $language;
             }
 

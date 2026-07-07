@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use Doctrine\Common\Collections\Criteria;
+use App\Doctrine\Query\MatchAgainstFunction;
 use App\Entity\Card;
 use App\Entity\CollectedCard;
 use App\Entity\Wishlist;
@@ -73,14 +74,17 @@ class CollectedCardRepository extends ServiceEntityRepository
             ->addOrderBy('ca.number', Criteria::ASC)
         ;
 
-        if (!empty($searchParams['term'])) {
-            $conditions = [];
+        $term = MatchAgainstFunction::toBooleanSearchTerm($searchParams['term'] ?? '');
 
-            foreach (Card::CARD_LANGUAGES as $index => $lang) {
-                $conditions[] = $qb->expr()->like("ca.{$lang}Texts.name", ':term' . $index);
-                $qb->setParameter('term' . $index, '%' . $searchParams['term'] . '%');
-            }
-            $qb->andWhere($qb->expr()->orX(...$conditions));
+        if ($term !== '') {
+            // The FULLTEXT index also covers scryfallOracleId; MATCH() must
+            // name every indexed column to be able to use it
+            $nameColumns = implode(', ', array_map(static fn (string $lang) => "ca.{$lang}Texts.name", Card::CARD_LANGUAGES));
+
+            $qb
+                ->andWhere("MATCH_AGAINST(ca.scryfallOracleId, {$nameColumns}, :term) > 0")
+                ->setParameter('term', $term)
+            ;
         }
 
         if (!empty($searchParams['supertypes'])) {

@@ -59,7 +59,7 @@ class MtgjsonImportPricesCommand extends Command
         foreach (JsonMachine::fromFile($path, ['pointer' => '/data', 'decoder' => new ExtJsonDecoder(true)]) as $uuid => $entry) {
             $prices = $this->extractPrices($entry, $dateKey);
 
-            if ($prices === []) {
+            if (empty($prices)) {
                 continue;
             }
 
@@ -73,7 +73,7 @@ class MtgjsonImportPricesCommand extends Command
             }
         }
 
-        if ($batch !== []) {
+        if (!empty($batch)) {
             [$u, $m] = $this->processBatch($batch);
             $updated += $u;
             $missing += $m;

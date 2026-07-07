@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Doctrine\Query\MatchAgainstFunction;
 use App\Entity\Card;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\NonUniqueResultException;
@@ -89,19 +90,23 @@ class CardRepository extends ServiceEntityRepository
 
     public function findByName(string $name)
     {
-        $qb = $this->createQueryBuilder('c');
+        $term = MatchAgainstFunction::toBooleanSearchTerm($name);
 
-        $qb->select('c');
-
-        foreach (Card::CARD_LANGUAGES as $lang) {
-            $qb
-                ->orWhere($qb->expr()->like("c.{$lang}Texts.name", ':term' . $lang))
-                ->setParameter('term' . $lang, '%' . $name . '%')
-            ;
+        if ($term === '') {
+            return [];
         }
 
+        // The FULLTEXT index also covers scryfallOracleId; MATCH() must name
+        // every indexed column to be able to use it
+        $nameColumns = implode(', ', array_map(static fn (string $lang) => "c.{$lang}Texts.name", Card::CARD_LANGUAGES));
 
-        return $qb->getQuery()->getResult();
+        return $this
+            ->createQueryBuilder('c')
+            ->where("MATCH_AGAINST(c.scryfallOracleId, {$nameColumns}, :term) > 0")
+            ->setParameter('term', $term)
+            ->getQuery()
+            ->getResult()
+        ;
     }
 
     public function findBySetCodeAndNumber(string $setCode = '', string $number = '')

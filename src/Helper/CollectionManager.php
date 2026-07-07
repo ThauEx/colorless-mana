@@ -89,7 +89,7 @@ class CollectionManager
 
         $candidates = array_values(array_diff($finishes, [CollectedCard::FINISH_NONFOIL]));
 
-        if ($candidates !== []) {
+        if (!empty($candidates)) {
             if (in_array('foil', $candidates, true) || count($candidates) !== 1) {
                 return [$card, 'foil'];
             }

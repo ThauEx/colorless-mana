@@ -55,7 +55,7 @@ class CollectionEditComponent extends AbstractController
             $criteria = new Criteria();
             $criteria
                 ->where(Criteria::expr()->eq('scryfallOracleId', $collectedCard->getCard()->getScryfallOracleId()))
-                ->where(Criteria::expr()->eq('setCode', $edition))
+                ->andWhere(Criteria::expr()->eq('setCode', $edition))
                 ->andWhere(Criteria::expr()->eq('number', $number))
                 ->andWhere(Criteria::expr()->orX(
                     Criteria::expr()->isNull('side'),

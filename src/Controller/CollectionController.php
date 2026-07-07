@@ -127,7 +127,7 @@ class CollectionController extends AbstractController
 
         $ids = array_map('intval', $request->request->all('ids'));
 
-        if ($ids !== []) {
+        if (!empty($ids)) {
             $this->doctrine->getRepository(CollectedCard::class)->deleteByIdsForUser($ids, $this->getUser());
 
             $this->collectionStatsProvider->reset($this->getUser());
@@ -265,7 +265,7 @@ class CollectionController extends AbstractController
 
         $amounts = array_filter(array_map('intval', (array) ($data['amounts'] ?? [])));
 
-        if (!$card || $amounts === []) {
+        if (!$card || empty($amounts)) {
             throw $this->createNotFoundException();
         }
 
