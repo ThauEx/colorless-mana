@@ -118,6 +118,30 @@ class CollectionController extends AbstractController
     }
 
     #[IsGranted('ROLE_USER')]
+    #[Route('/batch-delete', name: 'batch_delete', methods: ['POST'])]
+    public function removeCards(Request $request): RedirectResponse
+    {
+        if (!$this->isCsrfTokenValid('collection-batch-delete', $request->request->getString('_token'))) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $ids = array_map('intval', $request->request->all('ids'));
+
+        if ($ids !== []) {
+            $this->doctrine->getRepository(CollectedCard::class)->deleteByIdsForUser($ids, $this->getUser());
+
+            $this->collectionStatsProvider->reset($this->getUser());
+
+            $this->addFlash('info', 'cards.remove_card.batch_success');
+        }
+
+        $filters = $request->request->all();
+        unset($filters['ids'], $filters['_token']);
+
+        return $this->redirectToRoute('collection_index', $filters);
+    }
+
+    #[IsGranted('ROLE_USER')]
     #[Route('/delete/{id}', name: 'delete')]
     public function removeCard(string $id): RedirectResponse
     {

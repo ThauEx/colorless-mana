@@ -1,7 +1,7 @@
 import 'bootstrap/js/src/alert';
 import 'bootstrap/js/src/collapse';
 import Tooltip from 'bootstrap/js/src/tooltip';
-import './search-filter';
+import './search';
 
 window.process = {env: {}};
 const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');

@@ -322,7 +322,9 @@ dd($results);
         }
 
         return $this->cache->get('card_finishes_' . $id, function () use ($user) {
-            $qb = $this->em->getRepository(CollectedCard::class)->createQueryBuilder('c')
+            $qb = $this->em
+                ->getRepository(CollectedCard::class)
+                ->createQueryBuilder('c')
                 ->select('c.finish')
                 ->distinct()
                 ->orderBy('c.finish')

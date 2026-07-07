@@ -49,11 +49,28 @@
 
     {% for item in collection %}
         {% if loop.first %}
+    <form method="post" action="{{ path('collection_batch_delete') }}" class="js-batch-delete-form" data-confirm="{{ 'cards.collection.batch_delete_confirm'|trans }}">
+    <input type="hidden" name="_token" value="{{ csrf_token('collection-batch-delete') }}">
+    {# Carries the active filters along so the redirect after deletion keeps them #}
+    {% for key, value in app.request.query.all() %}
+        {% if key != 'page' %}
+            {% for v in value is iterable ? value : [value] %}
+                <input type="hidden" name="{{ key }}{{ value is iterable ? '[]' : '' }}" value="{{ v }}">
+            {% endfor %}
+        {% endif %}
+    {% endfor %}
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <div>
+            {{ 'cards.collection.selected_count'|trans }}: <strong class="js-selected-count">0</strong>
+            <button type="button" class="btn btn-link btn-sm js-clear-selection">{{ 'cards.collection.clear_selection'|trans }}</button>
+        </div>
+        <button type="submit" class="btn btn-danger btn-sm js-delete-selected-btn" disabled>{{ 'cards.collection.delete_selected'|trans }}</button>
+    </div>
     <div class="table-responsive">
         <table class="table table-striped">
             <thead>
                 <tr>
-                    <th>#</th>
+                    <th><input type="checkbox" class="form-check-input js-select-all" title="{{ 'cards.collection.select_all_page'|trans }}"></th>
                     <th>{{ 'form.cards.collection.search.order_choices.name'|trans }}</th>
                     <th>{{ 'form.cards.collection.search.order_choices.quantity'|trans }}</th>
                     <th>{{ 'form.cards.collection.search.order_choices.finish'|trans }}</th>
@@ -69,7 +86,7 @@
             {% endif %}
             {% set lang = item.language in item.card.cardLanguages() ? item.language : '' %}
                 <tr data-bs-toggle="collapse" data-bs-target="#collapse{{ item.card.id }}-{{ item.language }}-{{ item.finish }}">
-                    <td></td>
+                    <td><input type="checkbox" class="form-check-input js-batch-select" name="ids[]" value="{{ item.id }}"></td>
                     <td>{{ item.card.texts(lang).name }}</td>
                     <td>{{ item.quantity }}</td>
                     <td>
@@ -141,16 +158,7 @@
             </tfoot>
         </table>
     </div>
+    </form>
         {% endif %}
     {% endfor %}
-
-    <script type="text/javascript">
-        const flipCardButtons = document.querySelectorAll('.js-flip-card');
-        for (let flipCardButton of flipCardButtons) {
-          flipCardButton.addEventListener('click', event => {
-            const inner = event.target.parentNode.parentNode.querySelector('.flip-card-inner');
-            inner.style.transform = ['none', ''].includes(inner.style.transform) ? 'rotateY(-180deg)' : '';
-          });
-        }
-    </script>
 {% endblock %}

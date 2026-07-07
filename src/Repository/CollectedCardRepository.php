@@ -9,6 +9,7 @@ use App\Entity\Wishlist;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @method CollectedCard|null find($id, $lockMode = null, $lockVersion = null)
@@ -21,6 +22,20 @@ class CollectedCardRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, CollectedCard::class);
+    }
+
+    public function deleteByIdsForUser(array $ids, UserInterface $user): int
+    {
+        return $this
+            ->createQueryBuilder('cc')
+            ->delete()
+            ->where('cc.id IN (:ids)')
+            ->andWhere('cc.user = :user')
+            ->setParameter('ids', $ids)
+            ->setParameter('user', $user)
+            ->getQuery()
+            ->execute()
+        ;
     }
 
     public function findMatchesForWishlist(Wishlist $wishlist, array $users)

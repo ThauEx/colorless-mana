@@ -200,7 +200,8 @@ class MtgjsonImportCardsCommand extends Command
             ->setFinishes($this->effectiveFinishes($cardData))
         ;
 
-        $card->getEnTexts()
+        $card
+            ->getEnTexts()
             ->setMultiverseId($cardData['identifiers']['multiverseId'] ?? null)
             ->setName($cardData['name'])
             ->setType($cardData['type'])

@@ -224,6 +224,11 @@ cards:
         flip: Umdrehen
         delete: Löschen
         change_owner: Besitzer ändern
+        select_all_page: Diese Seite auswählen
+        delete_selected: Auswahl löschen
+        selected_count: Ausgewählt
+        clear_selection: Auswahl aufheben
+        batch_delete_confirm: Sollen die ausgewählten Karten wirklich gelöscht werden?
     add_card:
         success: Karte erfolgreich zur Sammlung hinzugefügt.
     edit_card:
@@ -231,6 +236,7 @@ cards:
         fail: Fehler beim Speichern der Karte.
     remove_card:
         success: Karte erfolgreich gelöscht.
+        batch_success: Ausgewählte Karten erfolgreich gelöscht.
     import:
         title: Import
         failed_to_match: Beim Import konnten nicht alle Karten zugeordnet werden.

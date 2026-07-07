@@ -197,7 +197,9 @@ class MtgDataProvider
     /** @return array<string, CollectedCard> the user's collection keyed by "cardId|language|finish" */
     private function loadCollection(UserInterface $user): array
     {
-        $rows = $this->em->getRepository(CollectedCard::class)->createQueryBuilder('cc')
+        $rows = $this->em
+            ->getRepository(CollectedCard::class)
+            ->createQueryBuilder('cc')
             ->select('cc', 'IDENTITY(cc.card) AS cardId')
             ->where('cc.user = :user')
             ->setParameter('user', $user)
