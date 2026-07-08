@@ -9,46 +9,33 @@
     </div>
     {% endif %}
 
+    {# One shared row so hidden filters (choices|length < 2) don't leave gaps:
+       Bootstrap's grid wraps remaining columns across what used to be two
+       separate rows, instead of each row reflowing only among itself. #}
     <div class="row">
         <div class="col-md-3">
             {{ form_row(form.term) }}
         </div>
-        <div class="col-md-3">
-            {% if form.supertypes.vars.choices|length < 2 %}<div class="d-none">{% endif %}
+        <div class="col-md-3{{ form.supertypes.vars.choices|length < 2 ? ' d-none' }}">
             {{ form_row(form.supertypes) }}
-            {% if form.supertypes.vars.choices|length < 2 %}</div>{% endif %}
         </div>
-        <div class="col-md-3">
-            {% if form.types.vars.choices|length < 2 %}<div class="d-none">{% endif %}
+        <div class="col-md-3{{ form.types.vars.choices|length < 2 ? ' d-none' }}">
             {{ form_row(form.types) }}
-            {% if form.types.vars.choices|length < 2 %}</div>{% endif %}
         </div>
-        <div class="col-md-3">
-            {% if form.subtypes.vars.choices|length < 2 %}<div class="d-none">{% endif %}
+        <div class="col-md-3{{ form.subtypes.vars.choices|length < 2 ? ' d-none' }}">
             {{ form_row(form.subtypes) }}
-            {% if form.subtypes.vars.choices|length < 2 %}</div>{% endif %}
         </div>
-    </div>
-    <div class="row">
-        <div class="col-md-3">
-            {% if form.colors.vars.choices|length < 2 %}<div class="d-none">{% endif %}
+        <div class="col-md-3{{ form.colors.vars.choices|length < 2 ? ' d-none' }}">
             {{ form_row(form.colors) }}
-            {% if form.colors.vars.choices|length < 2 %}</div>{% endif %}
         </div>
-        <div class="col-md-3">
-            {% if form.rarities.vars.choices|length < 2 %}<div class="d-none">{% endif %}
+        <div class="col-md-3{{ form.rarities.vars.choices|length < 2 ? ' d-none' }}">
             {{ form_row(form.rarities) }}
-            {% if form.rarities.vars.choices|length < 2 %}</div>{% endif %}
         </div>
-        <div class="col-md-3">
-            {% if form.setCodes.vars.choices|length < 2 %}<div class="d-none">{% endif %}
+        <div class="col-md-3{{ form.setCodes.vars.choices|length < 2 ? ' d-none' }}">
             {{ form_row(form.setCodes) }}
-            {% if form.setCodes.vars.choices|length < 2 %}</div>{% endif %}
         </div>
-        <div class="col-md-3">
-            {% if form.languages.vars.choices|length < 2 %}<div class="d-none">{% endif %}
+        <div class="col-md-3{{ form.languages.vars.choices|length < 2 ? ' d-none' }}">
             {{ form_row(form.languages) }}
-            {% if form.languages.vars.choices|length < 2 %}</div>{% endif %}
         </div>
     </div>
     <div class="row">

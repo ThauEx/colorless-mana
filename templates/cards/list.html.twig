@@ -3,42 +3,43 @@
 {% block title %}{{ 'cards.collection.title'|trans }}{% endblock %}
 
 {% block body %}
-    <div class="accordion-item">
-        <h2 class="accordion-header" id="headingStats">
-            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseStats" aria-expanded="false" aria-controls="collapseStats">
-                {{ 'cards.collection.stats'|trans }}
-            </button>
-        </h2>
-        <div id="collapseStats" class="accordion-collapse collapse" aria-labelledby="headingStats">
-            <div class="accordion-body">
-                <strong>Karten in Sammlung:</strong><br>
-                <div class="row">
-                    <div class="col">
-                        Normal: {{ meta.quantities.nonFoil }} (Ø {{ meta.prices.nonFoil|format_currency('EUR') }})
+    <div class="accordion">
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingStats">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseStats" aria-expanded="false" aria-controls="collapseStats">
+                    {{ 'cards.collection.stats'|trans }}
+                </button>
+            </h2>
+            <div id="collapseStats" class="accordion-collapse collapse" aria-labelledby="headingStats">
+                <div class="accordion-body">
+                    <strong>Karten in Sammlung:</strong><br>
+                    <div class="row">
+                        <div class="col">
+                            Normal: {{ meta.quantities.nonFoil }} (Ø {{ meta.prices.nonFoil|format_currency('EUR') }})
+                        </div>
+                        <div class="col">
+                            Foil: {{ meta.quantities.foil }}(Ø {{ meta.prices.foil|format_currency('EUR') }})
+                        </div>
+                        <div class="col">
+                            Total: {{ meta.quantities.nonFoil + meta.quantities.foil }} (Ø {{ (meta.prices.nonFoil + meta.prices.foil)|format_currency('EUR') }})
+                        </div>
                     </div>
-                    <div class="col">
-                        Foil: {{ meta.quantities.foil }}(Ø {{ meta.prices.foil|format_currency('EUR') }})
+                    <br>
+                    <strong>Sonstiges:</strong><br>
+                    <div class="row">
+                        <div class="col">Typen: {{ meta.types|length }}</div>
+                        <div class="col">Untertypen: {{ meta.subTypes|length }}</div>
+                        <div class="col">Farben: {{ meta.colors|length }}</div>
+                        <div class="col">Sprachen: {{ meta.languages|length }}</div>
                     </div>
-                    <div class="col">
-                        Total: {{ meta.quantities.nonFoil + meta.quantities.foil }} (Ø {{ (meta.prices.nonFoil + meta.prices.foil)|format_currency('EUR') }})
-                    </div>
-                </div>
-                <br>
-                <strong>Sonstiges:</strong><br>
-                <div class="row">
-                    <div class="col">Typen: {{ meta.types|length }}</div>
-                    <div class="col">Untertypen: {{ meta.subTypes|length }}</div>
-                    <div class="col">Farben: {{ meta.colors|length }}</div>
-                    <div class="col">Sprachen: {{ meta.languages|length }}</div>
                 </div>
             </div>
         </div>
     </div>
-
     <br>
     {% include 'cards/search_filter.html.twig' %}
 
-    <div class="row">
+    <div class="row mb-3">
         <div class="col">
             <p>Anzahl der Ergebnisse: {{ pager.nbResults }}</p>
         </div>

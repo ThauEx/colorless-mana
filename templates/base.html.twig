@@ -5,6 +5,16 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="color-scheme" content="dark light">
+        <script>
+            (() => {
+                const applyTheme = () => document.documentElement.setAttribute(
+                    'data-bs-theme',
+                    window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+                );
+                applyTheme();
+                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyTheme);
+            })();
+        </script>
         <title>{% block title %}{% endblock %} | {{ 'common.brand'|trans }}</title>
         <link rel="apple-touch-icon" sizes="57x57" href="{{ asset('images/apple-icon-57x57.png') }}">
         <link rel="apple-touch-icon" sizes="60x60" href="{{ asset('images/apple-icon-60x60.png') }}">
@@ -35,7 +45,7 @@
     <body>
         {% include 'icons.html.twig' %}
         <header>
-            <div class="px-3 py-2 bg-dark text-white">
+            <div class="px-3 py-2 bg-light-subtle text-white">
                 <div class="container">
                     <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
                         <a href="/" class="d-flex align-items-center my-2 my-lg-0 me-lg-auto text-white text-decoration-none">

@@ -7,6 +7,6 @@ window.process = {env: {}};
 const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
 [...tooltipTriggerList].map(tooltipTriggerEl => new Tooltip(tooltipTriggerEl));
 
-import 'bootstrap-dark-5/dist/css/bootstrap-dark.css';
+import 'bootstrap/dist/css/bootstrap.css';
 import 'flag-icons/css/flag-icons.css';
 import '../css/styles.css';
