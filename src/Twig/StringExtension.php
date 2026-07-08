@@ -10,7 +10,7 @@ class StringExtension extends AbstractExtension
     public function getFilters(): array
     {
         return [
-            new TwigFilter('linkify', [$this, 'linkify'], [
+            new TwigFilter('linkify', $this->linkify(...), [
                 'pre_escape' => 'html',
                 'is_safe' => ['html'],
             ]),
@@ -19,6 +19,6 @@ class StringExtension extends AbstractExtension
 
     public function linkify($str): array|string|null
     {
-        return preg_replace('/\[([^\[]+)]\((.+?)\)/', '<a href="$2">$1</a>', $str);
+        return preg_replace('/\[([^\[]+)]\((.+?)\)/', '<a href="$2">$1</a>', (string) $str);
     }
 }

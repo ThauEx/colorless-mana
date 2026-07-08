@@ -17,13 +17,13 @@ class Card
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'NONE')]
     #[ORM\Column(type: 'uuid', unique: true)]
-    private ?string $id;
+    private ?string $id = null;
 
     #[ORM\Column(type: Types::STRING, length: 255)]
-    private ?string $artist;
+    private ?string $artist = null;
 
     #[ORM\Column(type: Types::STRING, length: 255)]
-    private ?string $borderColor;
+    private ?string $borderColor = null;
 
     #[ORM\Column(type: 'array')]
     private array $colorIdentity = [];
@@ -32,34 +32,34 @@ class Card
     private array $colors = [];
 
     #[ORM\Column(type: Types::FLOAT)]
-    private ?float $convertedManaCost;
+    private ?float $convertedManaCost = null;
 
     #[ORM\Column(type: Types::STRING, length: 255)]
-    private ?string $frameVersion;
+    private ?string $frameVersion = null;
 
     #[ORM\Column(type: 'uuid', nullable: true)]
-    private ?string $scryfallIllustrationId;
+    private ?string $scryfallIllustrationId = null;
 
     #[ORM\Column(type: 'uuid', nullable: true)]
-    private ?string $scryfallOracleId;
+    private ?string $scryfallOracleId = null;
 
     #[ORM\Column(type: Types::STRING, length: 255)]
-    private ?string $layout;
+    private ?string $layout = null;
 
     #[ORM\Column(type: Types::STRING, length: 255)]
-    private ?string $manaCost;
+    private ?string $manaCost = null;
 
     #[ORM\Column(type: Types::STRING, length: 255)]
-    private ?string $number;
+    private ?string $number = null;
 
     #[ORM\Column(type: 'array')]
     private array $printings = [];
 
     #[ORM\Column(type: Types::STRING, length: 255)]
-    private ?string $rarity;
+    private ?string $rarity = null;
 
     #[ORM\Column(type: Types::STRING, length: 255)]
-    private ?string $setCode;
+    private ?string $setCode = null;
 
     #[ORM\Column(type: 'array')]
     private array $subtypes = [];
@@ -71,7 +71,7 @@ class Card
     private array $types = [];
 
     #[ORM\Column(type: Types::STRING, length: 1, nullable: true)]
-    private ?string $side;
+    private ?string $side = null;
 
     // Current MTGJSON uuid; MTGJSON regenerates it when card data changes, so it
     // can differ from the immutable primary key. Price data is matched against it.

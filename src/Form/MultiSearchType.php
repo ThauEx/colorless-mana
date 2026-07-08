@@ -40,9 +40,7 @@ class MultiSearchType extends AbstractType
                 [
                     'label'         => 'form.cards.multi_search.users',
                     'class'         => User::class,
-                    'query_builder' => function (UserRepository $repo) {
-                        return $repo->getFollowingAndMyselfQueryBuilder($this->tokenStorage->getToken()->getUser());
-                    },
+                    'query_builder' => fn(UserRepository $repo) => $repo->getFollowingAndMyselfQueryBuilder($this->tokenStorage->getToken()->getUser()),
                     'choice_label' => 'username',
                     'multiple'     => true,
                     'attr'         => [

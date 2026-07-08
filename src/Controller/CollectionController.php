@@ -125,7 +125,7 @@ class CollectionController extends AbstractController
             throw $this->createAccessDeniedException();
         }
 
-        $ids = array_map('intval', $request->request->all('ids'));
+        $ids = array_map(intval(...), $request->request->all('ids'));
 
         if (!empty($ids)) {
             $this->doctrine->getRepository(CollectedCard::class)->deleteByIdsForUser($ids, $this->getUser());
@@ -209,7 +209,7 @@ class CollectionController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
 
-            $cardNames = explode("\r\n", $data['cards']);
+            $cardNames = explode("\r\n", (string) $data['cards']);
             $cardNamesToMap = $cardNames;
 
             $em = $this->doctrine->getManager();
@@ -228,7 +228,7 @@ class CollectionController extends AbstractController
                     foreach ($cardNamesToMap as $cardIndex => $cardName) {
                         foreach (Card::CARD_LANGUAGES as $lang) {
                             $texts = $card->getCard()->getTexts($lang);
-                            if (strtolower($texts->getName()) === strtolower($cardName)) {
+                            if (strtolower((string) $texts->getName()) === strtolower($cardName)) {
                                 $oracleIdToNameMapping[$index] = $cardName;
 
                                 unset($cardNamesToMap[$cardIndex]);
@@ -263,7 +263,7 @@ class CollectionController extends AbstractController
             'number'  => $data['number'],
         ]);
 
-        $amounts = array_filter(array_map('intval', (array) ($data['amounts'] ?? [])));
+        $amounts = array_filter(array_map(intval(...), (array) ($data['amounts'] ?? [])));
 
         if (!$card || empty($amounts)) {
             throw $this->createNotFoundException();

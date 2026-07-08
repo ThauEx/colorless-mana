@@ -5,15 +5,17 @@ namespace App\DataProvider;
 use App\Entity\CollectedCard;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Cache\InvalidArgumentException;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 
 class CollectionStatsProvider
 {
-    private CacheInterface $cache;
-
-    public function __construct(private readonly EntityManagerInterface $em, CacheInterface $collectionStatsCache) {
-        $this->cache = $collectionStatsCache;
+    public function __construct(
+        private readonly EntityManagerInterface $em,
+        #[Autowire(service: 'collection_stats.cache')]
+        private readonly CacheInterface $cache,
+    ) {
     }
 
     public function getCardSupertypes(?UserInterface $user = null): array
@@ -261,10 +263,8 @@ class CollectionStatsProvider
 
             $finishes = array_column($qb->getQuery()->getScalarResult(), 'finish');
 
-            usort($finishes, static function (string $a, string $b) {
-                return ($a === CollectedCard::FINISH_NONFOIL ? 0 : 1) <=> ($b === CollectedCard::FINISH_NONFOIL ? 0 : 1)
-                    ?: strcmp($a, $b);
-            });
+            usort($finishes, static fn(string $a, string $b) => ($a === CollectedCard::FINISH_NONFOIL ? 0 : 1) <=> ($b === CollectedCard::FINISH_NONFOIL ? 0 : 1)
+                ?: strcmp($a, $b));
 
             return $finishes;
         });
@@ -338,7 +338,7 @@ class CollectionStatsProvider
         foreach ($keys as $key) {
             try {
                 $this->cache->delete($key . $user->getId());
-            } catch (InvalidArgumentException $e) {
+            } catch (InvalidArgumentException) {
             }
         }
 

@@ -39,7 +39,7 @@ class MatchAgainstFunction extends FunctionNode
         $termIndex = count($this->args) - 1;
 
         $columns = array_map(
-            static fn (Node $arg) => $sqlWalker->walkStringPrimary($arg),
+            $sqlWalker->walkStringPrimary(...),
             array_slice($this->args, 0, $termIndex)
         );
         $term = $sqlWalker->walkStringPrimary($this->args[$termIndex]);

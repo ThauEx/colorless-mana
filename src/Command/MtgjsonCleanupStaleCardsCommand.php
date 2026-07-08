@@ -2,6 +2,7 @@
 
 namespace App\Command;
 
+use Throwable;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -157,7 +158,7 @@ class MtgjsonCleanupStaleCardsCommand extends Command
             );
 
             $this->connection->commit();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->connection->rollBack();
 
             throw $e;

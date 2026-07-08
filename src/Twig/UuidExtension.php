@@ -9,11 +9,8 @@ use Twig\TwigFilter;
 
 class UuidExtension extends AbstractExtension
 {
-    private $encoder;
-
-    public function __construct(UuidEncoder $encoder)
+    public function __construct(private readonly UuidEncoder $encoder)
     {
-        $this->encoder = $encoder;
     }
 
     public function getFilters(): array
@@ -21,7 +18,7 @@ class UuidExtension extends AbstractExtension
         return [
             new TwigFilter(
                 'uuid_encode',
-                [$this, 'encodeUuid'],
+                $this->encodeUuid(...),
                 ['is_safe' => ['html']]
             ),
         ];

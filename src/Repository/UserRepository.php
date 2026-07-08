@@ -16,13 +16,9 @@ use Symfony\Component\Security\Core\User\UserInterface;
  */
 class UserRepository extends ServiceEntityRepository
 {
-    private UuidEncoder $uuidEncoder;
-
-    public function __construct(ManagerRegistry $registry, UuidEncoder $uuidEncoder)
+    public function __construct(ManagerRegistry $registry, private readonly UuidEncoder $uuidEncoder)
     {
         parent::__construct($registry, User::class);
-
-        $this->uuidEncoder = $uuidEncoder;
     }
 
     public function findFollowing(UserInterface $user)
@@ -65,8 +61,6 @@ class UserRepository extends ServiceEntityRepository
 
         $userIds = $qb->getQuery()->getResult();
 
-        return array_map(static function ($user) {
-            return $user['id'];
-        }, $userIds);
+        return array_map(static fn($user) => $user['id'], $userIds);
     }
 }

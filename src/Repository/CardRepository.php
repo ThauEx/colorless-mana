@@ -41,7 +41,7 @@ class CardRepository extends ServiceEntityRepository
                 ->getQuery()
                 ->getOneOrNullResult()
             ;
-        } catch (NonUniqueResultException $exception) {
+        } catch (NonUniqueResultException) {
             return null;
         }
     }

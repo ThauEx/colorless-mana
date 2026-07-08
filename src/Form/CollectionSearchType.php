@@ -15,21 +15,8 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class CollectionSearchType extends AbstractType
 {
-    private MtgDataProvider $mtgDataProvider;
-    private CollectionStatsProvider $collectionStatsProvider;
-    private LanguageMapper $languageMapper;
-    private UuidEncoder $uuidEncoder;
-
-    public function __construct(
-        MtgDataProvider $mtgDataProvider,
-        CollectionStatsProvider $collectionStatsProvider,
-        LanguageMapper $languageMapper,
-        UuidEncoder $uuidEncoder
-    ) {
-        $this->mtgDataProvider = $mtgDataProvider;
-        $this->collectionStatsProvider = $collectionStatsProvider;
-        $this->languageMapper = $languageMapper;
-        $this->uuidEncoder = $uuidEncoder;
+    public function __construct(private readonly MtgDataProvider $mtgDataProvider, private readonly CollectionStatsProvider $collectionStatsProvider, private readonly LanguageMapper $languageMapper, private readonly UuidEncoder $uuidEncoder)
+    {
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
@@ -141,9 +128,7 @@ class CollectionSearchType extends AbstractType
                 [
                     'required'    => false,
                     'label'       => 'form.types',
-                    'choices'     => array_combine(array_map(static function (string $type) {
-                        return 'card.type.' . strtolower($type);
-                    }, $cardTypes), $cardTypes),
+                    'choices'     => array_combine(array_map(static fn(string $type) => 'card.type.' . strtolower($type), $cardTypes), $cardTypes),
                     'placeholder' => 'Alle',
                     'expanded'    => false,
                     'multiple'    => true,
@@ -174,18 +159,14 @@ class CollectionSearchType extends AbstractType
                 [
                     'required'    => false,
                     'label'       => 'form.colors',
-                    'choices'     => array_combine(array_map(static function (string $color) {
-                        return 'card.color.' . strtolower($color);
-                    }, $colors), $colors),
+                    'choices'     => array_combine(array_map(static fn(string $color) => 'card.color.' . strtolower($color), $colors), $colors),
                     'placeholder' => 'Alle',
                     'expanded'    => false,
                     'multiple'    => true,
                     'attr'        => [
                         'class' => 'js-select js-select-colors',
                     ],
-                    'choice_attr' => static function($choice, $key, $value) use ($symbols) {
-                        return ['data-icon' => $symbols['{' . $value . '}']->getSvgUri()];
-                    },
+                    'choice_attr' => static fn($choice, $key, $value) => ['data-icon' => $symbols['{' . $value . '}']->getSvgUri()],
                 ]
             )
             ->add(
@@ -210,9 +191,7 @@ class CollectionSearchType extends AbstractType
                 [
                     'required'    => false,
                     'label'       => 'form.rarities',
-                    'choices'     => array_combine(array_map(static function (string $rarity) {
-                        return 'card.rarity.' . strtolower($rarity);
-                    }, $rarities), $rarities),
+                    'choices'     => array_combine(array_map(static fn(string $rarity) => 'card.rarity.' . strtolower($rarity), $rarities), $rarities),
                     'placeholder' => 'Alle',
                     'expanded'    => false,
                     'multiple'    => true,
@@ -235,9 +214,7 @@ class CollectionSearchType extends AbstractType
                     'attr'                      => [
                         'class'     => 'js-select js-select-set-codes',
                     ],
-                    'choice_attr'               => static function($choice, $key, $value) use ($sets) {
-                        return ['data-icon' => $sets[$value]->getSvgUri()];
-                    },
+                    'choice_attr'               => static fn($choice, $key, $value) => ['data-icon' => $sets[$value]->getSvgUri()],
                 ]
             )
             ->add(
@@ -253,9 +230,7 @@ class CollectionSearchType extends AbstractType
                     'attr'        => [
                         'class' => 'js-select js-select-languages',
                     ],
-                    'choice_attr' => function($choice, $key, $value) {
-                        return ['data-lang' => $this->languageMapper->languageToCountry($value)];
-                    },
+                    'choice_attr' => fn($choice, $key, $value) => ['data-lang' => $this->languageMapper->languageToCountry($value)],
                 ]
             )
             ->add(
@@ -264,9 +239,7 @@ class CollectionSearchType extends AbstractType
                 [
                     'required'    => false,
                     'label'       => 'form.finishes',
-                    'choices'     => array_combine(array_map(static function (string $finish) {
-                        return 'card.finish.' . $finish;
-                    }, $finishes), $finishes),
+                    'choices'     => array_combine(array_map(static fn(string $finish) => 'card.finish.' . $finish, $finishes), $finishes),
                     'placeholder' => 'Alle',
                     'expanded'    => false,
                     'multiple'    => true,

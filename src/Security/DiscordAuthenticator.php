@@ -19,15 +19,8 @@ use Wohali\OAuth2\Client\Provider\DiscordResourceOwner;
 
 class DiscordAuthenticator extends OAuth2Authenticator
 {
-    private $clientRegistry;
-    private $em;
-    private $router;
-
-    public function __construct(ClientRegistry $clientRegistry, EntityManagerInterface $em, RouterInterface $router)
+    public function __construct(private readonly ClientRegistry $clientRegistry, private readonly EntityManagerInterface $em, private readonly RouterInterface $router)
     {
-        $this->clientRegistry = $clientRegistry;
-        $this->em = $em;
-        $this->router = $router;
     }
 
     public function supports(Request $request): bool

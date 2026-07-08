@@ -17,7 +17,7 @@ class CollectedCard
     #[ORM\Column(name: 'id', type: Types::INTEGER)]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
-    private ?int $id;
+    private ?int $id = null;
 
     #[ORM\Column(name: 'edition', type: Types::STRING, length: 255)]
     private string $edition;
@@ -36,10 +36,10 @@ class CollectedCard
 
     #[ORM\ManyToOne(targetEntity: User::class, fetch: 'EXTRA_LAZY', inversedBy: 'collectedCards')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?User $user;
+    private ?User $user = null;
 
     #[ORM\ManyToOne(targetEntity: Card::class)]
-    private ?Card $card;
+    private ?Card $card = null;
 
     public function getId(): ?int
     {

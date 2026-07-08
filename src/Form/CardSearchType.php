@@ -57,9 +57,7 @@ class CardSearchType extends AbstractType
                         'class'          => 'js-select js-select-set-codes',
                         'data-max-items' => 1,
                     ],
-                    'choice_attr'               => static function($choice, $key, $value) use ($sets) {
-                        return ['data-icon' => $sets[$value]->getSvgUri()];
-                    },
+                    'choice_attr'               => static fn($choice, $key, $value) => ['data-icon' => $sets[$value]->getSvgUri()],
                 ]
             )
             ->add(

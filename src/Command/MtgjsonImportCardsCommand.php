@@ -60,7 +60,7 @@ class MtgjsonImportCardsCommand extends Command
         $sets = JsonMachine::fromFile($path, ['pointer' => '/data', 'decoder' => new ExtJsonDecoder(true)]);
 
         foreach ($sets as $set) {
-            if ($onlySet !== null && strcasecmp($set['code'], $onlySet) !== 0) {
+            if ($onlySet !== null && strcasecmp((string) $set['code'], (string) $onlySet) !== 0) {
                 continue;
             }
 
@@ -121,7 +121,7 @@ class MtgjsonImportCardsCommand extends Command
         $updated = 0;
 
         foreach ($batch as $cardData) {
-            $key = strtolower($cardData['identifiers']['scryfallId']);
+            $key = strtolower((string) $cardData['identifiers']['scryfallId']);
 
             $card = $existing[$key] ?? null;
 
@@ -157,7 +157,7 @@ class MtgjsonImportCardsCommand extends Command
         $existing = [];
 
         foreach ($this->em->getRepository(Card::class)->findBy(['id' => $scryfallIds]) as $card) {
-            $existing[strtolower($card->getId())] = $card;
+            $existing[strtolower((string) $card->getId())] = $card;
         }
 
         return $existing;
@@ -178,9 +178,9 @@ class MtgjsonImportCardsCommand extends Command
             ->setLayout($cardData['layout'])
             ->setManaCost($cardData['manaCost'] ?? '{0}')
             ->setNumber($cardData['number'])
-            ->setPrintings(array_map('strtolower', $cardData['printings'] ?? [$cardData['setCode']]))
+            ->setPrintings(array_map(strtolower(...), $cardData['printings'] ?? [$cardData['setCode']]))
             ->setRarity($cardData['rarity'] ?? 'common')
-            ->setSetCode(strtolower($cardData['setCode']))
+            ->setSetCode(strtolower((string) $cardData['setCode']))
             ->setSubtypes($cardData['subtypes'])
             ->setSupertypes($cardData['supertypes'])
             ->setTypes($cardData['types'])

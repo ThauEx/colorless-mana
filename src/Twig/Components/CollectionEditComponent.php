@@ -22,8 +22,6 @@ class CollectionEditComponent extends AbstractController
     use ComponentWithFormTrait;
     use DefaultActionTrait;
 
-    private CollectionStatsProvider $collectionStatsProvider;
-
     #[LiveProp(fieldName: '')]
     public ?CollectedCard $collectedCard = null;
     #[LiveProp]
@@ -32,9 +30,8 @@ class CollectionEditComponent extends AbstractController
     public bool $isSaved = false;
     public bool $error = false;
 
-    public function __construct(CollectionStatsProvider $collectionStatsProvider)
+    public function __construct(private CollectionStatsProvider $collectionStatsProvider)
     {
-        $this->collectionStatsProvider = $collectionStatsProvider;
     }
 
     #[LiveAction]
@@ -46,7 +43,7 @@ class CollectionEditComponent extends AbstractController
 
         $form = $this->getForm();
 
-        [$edition, $number] = explode('-', $form->get('editionAndSetCode')->getData());
+        [$edition, $number] = explode('-', (string) $form->get('editionAndSetCode')->getData());
 
         if ($originalCollectedCard->getEdition() !== $edition || $originalCollectedCard->getNumber() !== $number) {
             $collectedCard = $form->getData();

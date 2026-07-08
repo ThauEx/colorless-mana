@@ -43,7 +43,7 @@ class CollectedCardType extends AbstractType
                 continue;
             }
 
-            $label = $sets[$print['setCode']]->getName() . ' (' . strtoupper($print['setCode']) . ')' . ' (' . $print['number'] . ')';
+            $label = $sets[$print['setCode']]->getName() . ' (' . strtoupper((string) $print['setCode']) . ')' . ' (' . $print['number'] . ')';
             $editions[$label] = $print['setCode'] . '-' . $print['number'];
         }
 
@@ -107,9 +107,7 @@ class CollectedCardType extends AbstractType
                 [
                     'label'         => 'form.card_edit.owner',
                     'class'         => User::class,
-                    'query_builder' => function (UserRepository $repo) {
-                        return $repo->getFollowingAndMyselfQueryBuilder($this->tokenStorage->getToken()->getUser());
-                    },
+                    'query_builder' => fn(UserRepository $repo) => $repo->getFollowingAndMyselfQueryBuilder($this->tokenStorage->getToken()->getUser()),
                     'choice_label' => 'username',
                 ]
             )

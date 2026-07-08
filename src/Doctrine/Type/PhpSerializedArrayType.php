@@ -2,6 +2,7 @@
 
 namespace App\Doctrine\Type;
 
+use RuntimeException;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
 
@@ -34,7 +35,7 @@ class PhpSerializedArrayType extends Type
         $unserialized = @unserialize($value, ['allowed_classes' => false]);
 
         if ($unserialized === false && $value !== serialize(false)) {
-            throw new \RuntimeException('Could not deserialize the stored array value.');
+            throw new RuntimeException('Could not deserialize the stored array value.');
         }
 
         return $unserialized;

@@ -16,11 +16,8 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route(path: '/users')]
 class UsersController extends AbstractController
 {
-    private ManagerRegistry $doctrine;
-
-    public function __construct(ManagerRegistry $doctrine)
+    public function __construct(private readonly ManagerRegistry $doctrine)
     {
-        $this->doctrine = $doctrine;
     }
 
     #[Route(path: '/', name: 'user_index', methods: ['GET'])]

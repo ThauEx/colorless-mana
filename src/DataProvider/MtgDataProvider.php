@@ -9,6 +9,7 @@ use App\Entity\CardSymbol;
 use App\Helper\CollectionManager;
 use App\Helper\LanguageMapper;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Contracts\Cache\CacheInterface;
@@ -16,27 +17,16 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class MtgDataProvider
 {
-    private EntityManagerInterface $em;
-    private HttpClientInterface $client;
-    private CollectionManager $collectionManager;
-    private CacheInterface $cache;
-    private TokenStorageInterface $tokenStorage;
-    private LanguageMapper $languageMapper;
-
     public function __construct(
-        EntityManagerInterface $em,
-        HttpClientInterface $scryfallClient,
-        CollectionManager $collectionManager,
-        CacheInterface $scryfallHttpCache,
-        TokenStorageInterface $tokenStorage,
-        LanguageMapper $languageMapper
+        private readonly EntityManagerInterface $em,
+        #[Autowire(service: 'scryfall.client')]
+        private readonly HttpClientInterface $client,
+        private readonly CollectionManager $collectionManager,
+        #[Autowire(service: 'scryfall_http.cache')]
+        private readonly CacheInterface $cache,
+        private readonly TokenStorageInterface $tokenStorage,
+        private readonly LanguageMapper $languageMapper,
     ) {
-        $this->em = $em;
-        $this->client = $scryfallClient;
-        $this->collectionManager = $collectionManager;
-        $this->cache = $scryfallHttpCache;
-        $this->tokenStorage = $tokenStorage;
-        $this->languageMapper = $languageMapper;
     }
 
     public function getCardsByScryfallOracleId(string $scryfallOracleId): array
@@ -94,7 +84,7 @@ class MtgDataProvider
 
             // Promo sets sometimes come with a 4 character code and either no
             // number or the number without the "p" suffix used in the database
-            if (!$card && strlen($item['setCode']) === 4) {
+            if (!$card && strlen((string) $item['setCode']) === 4) {
                 if (empty($item['number'])) {
                     $card = $cardRepo->findOneByNameAndSetCode($item['name'], $item['setCode']);
                 } else {
@@ -153,7 +143,7 @@ class MtgDataProvider
             $numbersBySet[$item['setCode']][] = $item['number'];
             $numbersBySet[$item['setCode']][] = $item['number'] . '★';
 
-            if (strlen($item['setCode']) === 4 && !empty($item['number'])) {
+            if (strlen((string) $item['setCode']) === 4 && !empty($item['number'])) {
                 $numbersBySet[$item['setCode']][] = $item['number'] . 'p';
             }
         }
@@ -219,14 +209,10 @@ class MtgDataProvider
     private function readCsv(string $file): array
     {
         $lines = file($file);
-        $lines = array_map(static function (string $line) {
-            return str_replace(';', ',', $line);
-        }, $lines);
-        $csv = array_map('str_getcsv', $lines);
-        $csv[0] = array_map('trim', $csv[0]);
-        $csv[0] = array_map(static function ($item) {
-            return str_replace('﻿', '', $item);
-        }, $csv[0]);
+        $lines = array_map(static fn(string $line) => str_replace(';', ',', $line), $lines);
+        $csv = array_map(str_getcsv(...), $lines);
+        $csv[0] = array_map(trim(...), $csv[0]);
+        $csv[0] = array_map(static fn($item) => str_replace('﻿', '', $item), $csv[0]);
         array_walk($csv, static function (&$a) use ($csv) {
             $a = array_combine($csv[0], $a);
         });
@@ -243,11 +229,11 @@ class MtgDataProvider
             }
 
             if (isset($item['Edition code'])) {
-                $item['setCode'] = strtolower($item['Edition code']);
+                $item['setCode'] = strtolower((string) $item['Edition code']);
             }
 
             if (isset($item['Edition (code)'])) {
-                $item['setCode'] = strtolower(substr($item['Edition (code)'], 1, -1));
+                $item['setCode'] = strtolower(substr((string) $item['Edition (code)'], 1, -1));
             }
 
             if (isset($item['Language'])) {
@@ -271,7 +257,7 @@ class MtgDataProvider
             }
 
             if (isset($item['Expansion Code'])) {
-                $item['setCode'] = strtolower($item['Expansion Code']);
+                $item['setCode'] = strtolower((string) $item['Expansion Code']);
             }
 
             if (isset($item['Quantity'], $item['Foil'])) {
@@ -284,7 +270,7 @@ class MtgDataProvider
                 }
             }
 
-            $item['number'] = ltrim($item['number'], '0');
+            $item['number'] = ltrim((string) $item['number'], '0');
 
             return $item;
         }, $array);

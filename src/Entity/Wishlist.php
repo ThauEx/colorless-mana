@@ -39,7 +39,7 @@ class Wishlist
     private Collection $cards;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'wishlist')]
-    private ?User $user;
+    private ?User $user = null;
 
     private $scryfallOracleIdCards = [];
 

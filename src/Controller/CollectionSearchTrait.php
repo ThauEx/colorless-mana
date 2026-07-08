@@ -61,9 +61,7 @@ trait CollectionSearchTrait
             }
         }
 
-        $oracleIds = array_map(static function (CollectedCard $collectedCard) {
-            return $collectedCard->getCard()->getScryfallOracleId();
-        }, iterator_to_array($cleanedResults));
+        $oracleIds = array_map(static fn(CollectedCard $collectedCard) => $collectedCard->getCard()->getScryfallOracleId(), iterator_to_array($cleanedResults));
 
         $returnData = [$form, $cleanedResults, $pagerfanta];
 

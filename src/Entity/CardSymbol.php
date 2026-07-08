@@ -4,9 +4,9 @@ namespace App\Entity;
 
 class CardSymbol
 {
-    private ?string $symbol;
-    private ?string $svgUri;
-    private ?string $convertedManaCosts;
+    private ?string $symbol = null;
+    private ?string $svgUri = null;
+    private ?string $convertedManaCosts = null;
     private array $colors = [];
 
     public function getSymbol(): ?string

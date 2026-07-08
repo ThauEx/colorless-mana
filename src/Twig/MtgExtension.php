@@ -11,22 +11,20 @@ class MtgExtension extends AbstractExtension
 {
     private array $sets;
     private array $symbology;
-    private LanguageMapper $languageMapper;
 
-    public function __construct(MtgDataProvider $mtgDataProvider, LanguageMapper $languageMapper)
+    public function __construct(MtgDataProvider $mtgDataProvider, private readonly LanguageMapper $languageMapper)
     {
         $this->sets = $mtgDataProvider->getSets();
         $this->symbology = $mtgDataProvider->getSymbology();
-        $this->languageMapper = $languageMapper;
     }
 
     public function getFilters(): array
     {
         return [
-            new TwigFilter('set_icon', [$this, 'parseSet'], ['is_safe' => ['html']]),
-            new TwigFilter('symbology_icon', [$this, 'parseSymbology'], ['is_safe' => ['html']]),
-            new TwigFilter('set_name', [$this, 'getSetName']),
-            new TwigFilter('flag', [$this, 'getFlag'], ['is_safe' => ['html']]),
+            new TwigFilter('set_icon', $this->parseSet(...), ['is_safe' => ['html']]),
+            new TwigFilter('symbology_icon', $this->parseSymbology(...), ['is_safe' => ['html']]),
+            new TwigFilter('set_name', $this->getSetName(...)),
+            new TwigFilter('flag', $this->getFlag(...), ['is_safe' => ['html']]),
         ];
     }
 

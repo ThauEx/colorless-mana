@@ -24,9 +24,7 @@ class UuidEncoder
         try {
             return Uuid::fromString(array_reduce(
                 [20, 16, 12, 8],
-                static function ($uuid, $offset) {
-                    return substr_replace($uuid, '-', $offset, 0);
-                },
+                static fn($uuid, $offset) => substr_replace($uuid, '-', $offset, 0),
                 str_pad(
                     gmp_strval(
                         gmp_init($encoded, 62),
@@ -37,7 +35,7 @@ class UuidEncoder
                     STR_PAD_LEFT
                 )
             ));
-        } catch (Throwable $e) {
+        } catch (Throwable) {
             return null;
         }
     }

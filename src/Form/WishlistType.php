@@ -16,13 +16,8 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class WishlistType extends AbstractType
 {
-    private MtgDataProvider $mtgDataProvider;
-    private LanguageMapper $languageMapper;
-
-    public function __construct(MtgDataProvider $mtgDataProvider,LanguageMapper $languageMapper)
+    public function __construct(private readonly MtgDataProvider $mtgDataProvider, private readonly LanguageMapper $languageMapper)
     {
-        $this->mtgDataProvider = $mtgDataProvider;
-        $this->languageMapper = $languageMapper;
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
@@ -77,24 +72,17 @@ class WishlistType extends AbstractType
                     'required'      => false,
                     'label'         => 'form.wishlist_add.cards',
                     'class'         => Card::class,
-                    'query_builder' => function (CardRepository $repo) use ($options) {
-                        return $repo->createQueryBuilder('c')
-                            ->where('c.scryfallOracleId = :scryfallOracleId')
-                            ->setParameter('scryfallOracleId', $options['scryfall_oracle_id'])
-                        ;
-                    },
+                    'query_builder' => fn(CardRepository $repo) => $repo->createQueryBuilder('c')
+                        ->where('c.scryfallOracleId = :scryfallOracleId')
+                        ->setParameter('scryfallOracleId', $options['scryfall_oracle_id']),
                     'placeholder'   => 'form.wishlist_add.cards_placeholder',
-                    'choice_label'  => function (Card $card) use ($sets) {
-                        return $sets[$card->getSetCode()]->getName() . ' (' . $card->getSetCode() . ') ' . $card->getNumber();
-                    },
+                    'choice_label'  => fn(Card $card) => $sets[$card->getSetCode()]->getName() . ' (' . $card->getSetCode() . ') ' . $card->getNumber(),
                     'expanded'      => false,
                     'multiple'      => true,
                     'attr'          => [
                         'class' => 'js-select js-select-sets',
                     ],
-                    'choice_attr'   => static function($choice) use ($sets) {
-                        return ['data-icon' => $sets[$choice->getSetCode()]->getSvgUri()];
-                    },
+                    'choice_attr'   => static fn($choice) => ['data-icon' => $sets[$choice->getSetCode()]->getSvgUri()],
                 ]
             )
         ;
