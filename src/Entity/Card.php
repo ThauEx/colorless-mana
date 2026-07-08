@@ -11,6 +11,7 @@ use Doctrine\ORM\Mapping\Embedded;
 #[ORM\Index(columns: ['scryfall_oracle_id', 'en_name', 'es_name', 'fr_name', 'de_name', 'it_name', 'pt_name', 'ja_name', 'ko_name', 'ru_name', 'zhs_name', 'zht_name', 'he_name', 'la_name', 'grc_name', 'ar_name', 'sa_name', 'ph_name'], flags: ['fulltext'])]
 #[ORM\Index(columns: ['mtgjson_uuid'])]
 #[ORM\Index(columns: ['set_code', 'number'])]
+#[ORM\Index(columns: ['scryfall_oracle_id'])]
 #[ORM\Entity(repositoryClass: CardRepository::class)]
 class Card
 {

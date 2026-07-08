@@ -2,7 +2,6 @@
 
 namespace App\Repository;
 
-use Doctrine\Common\Collections\Criteria;
 use App\Doctrine\Query\MatchAgainstFunction;
 use App\Entity\Card;
 use App\Entity\CollectedCard;
@@ -70,8 +69,8 @@ class CollectedCardRepository extends ServiceEntityRepository
             ->select('c, ca')
             ->leftJoin('c.card', 'ca')
             ->where('c.user IN (:users)')
-            ->orderBy('ca.setCode', Criteria::ASC)
-            ->addOrderBy('ca.number', Criteria::ASC)
+            ->orderBy('c.edition', 'ASC')
+            ->addOrderBy('c.number', 'ASC')
         ;
 
         $term = MatchAgainstFunction::toBooleanSearchTerm($searchParams['term'] ?? '');
@@ -206,7 +205,7 @@ class CollectedCardRepository extends ServiceEntityRepository
                 'quantity' => 'c.quantity',
                 'finish'   => 'c.finish',
                 'rarity'   => 'ca.rarity',
-                'setCode'  => 'ca.setCode',
+                'setCode'  => 'c.edition',
                 'language' => 'c.language',
                 'manaCost' => 'ca.manaCost',
                 'type'     => 'ca.types',
@@ -216,8 +215,8 @@ class CollectedCardRepository extends ServiceEntityRepository
 
             if ($sort === '') {
                 $qb
-                    ->orderBy('ca.setCode', $direction)
-                    ->addOrderBy('ca.number', $direction)
+                    ->orderBy('c.edition', $direction)
+                    ->addOrderBy('c.number', $direction)
                 ;
             } elseif ($sort === 'effectivePrice') {
                 $qb

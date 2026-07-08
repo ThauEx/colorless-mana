@@ -8,6 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Table(name: 'collected_cards')]
 #[ORM\Index(columns: ['edition', 'number', 'language'])]
+#[ORM\Index(columns: ['user_id', 'edition', 'number'])]
 #[ORM\UniqueConstraint(name: 'uniq_collected_card_entry', columns: ['user_id', 'card_id', 'language', 'finish'])]
 #[ORM\Entity(repositoryClass: CollectedCardRepository::class)]
 class CollectedCard
