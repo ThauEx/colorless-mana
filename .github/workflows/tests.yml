@@ -31,7 +31,8 @@ jobs:
           restore-keys: ${{ runner.os }}-composer-
 
       - name: Install dependencies
-        run: composer install --prefer-dist --no-progress --no-interaction
+        # --no-scripts: avoids cache:clear, which needs a DATABASE_URL the test suite doesn't require
+        run: composer install --prefer-dist --no-progress --no-interaction --no-scripts
 
       - name: Run PHPUnit
         run: vendor/bin/phpunit
