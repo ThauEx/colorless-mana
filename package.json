@@ -6,23 +6,23 @@
     "build": "encore production --progress"
   },
   "dependencies": {
-    "@popperjs/core": "^2.11.6",
-    "bootstrap": "^5.2.3",
+    "@popperjs/core": "^2.11.8",
+    "bootstrap": "^5.3.8",
     "flag-icons": "^7.5.0",
-    "tom-select": "^2.2.2"
+    "tom-select": "^2.6.2"
   },
   "devDependencies": {
     "@babel/core": "^8.0.1",
     "@babel/preset-env": "^8.0.2",
-    "@hotwired/stimulus": "^3.0.0",
+    "@hotwired/stimulus": "^3.2.2",
     "@symfony/stimulus-bridge": "^4.0.1",
     "@symfony/ux-live-component": "file:vendor/symfony/ux-live-component/assets",
-    "@symfony/webpack-encore": "^7.1.0",
+    "@symfony/webpack-encore": "^7.2.0",
     "babel-plugin-polyfill-corejs3": "^1.0.0",
-    "core-js": "^3.27.1",
+    "core-js": "^3.50.0",
     "regenerator-runtime": "^0.14.1",
-    "webpack": "^5.108.4",
-    "webpack-cli": "^7.2.1"
+    "webpack": "^5.110.3",
+    "webpack-cli": "^7.2.3"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
