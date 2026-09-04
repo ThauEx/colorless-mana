@@ -3,7 +3,6 @@
 {% block title %}{{ 'cards.search.title'|trans }}{% endblock %}
 
 {% block body %}
-    {{ form_start(form) }}
     <div class="accordion">
         <div class="accordion-item">
             <h2 class="accordion-header">
@@ -11,10 +10,13 @@
             </h2>
             <div class="accordion-collapse collapse show">
                 <div class="accordion-body">
-                    <div class="input-group mb-3">
-                        {{ form_widget(form.scryfall_id) }}
-                        {{ form_widget(form.submit_scryfall) }}
-                    </div>
+                    {{ form_start(scryfallForm) }}
+                        <div class="input-group">
+                            {{ form_widget(scryfallForm.scryfall_id) }}
+                            {{ form_widget(scryfallForm.submit) }}
+                        </div>
+                        {{ form_errors(scryfallForm.scryfall_id) }}
+                    {{ form_end(scryfallForm) }}
                 </div>
             </div>
         </div>
@@ -24,11 +26,15 @@
             </h2>
             <div class="accordion-collapse collapse show">
                 <div class="accordion-body">
-                    <div class="input-group mb-3">
-                        {{ form_widget(form.setCode) }}
-                        {{ form_widget(form.number) }}
-                        {{ form_widget(form.submit_set_number) }}
-                    </div>
+                    {{ form_start(setNumberForm) }}
+                        <div class="input-group">
+                            {{ form_widget(setNumberForm.setCode) }}
+                            {{ form_widget(setNumberForm.number) }}
+                            {{ form_widget(setNumberForm.submit) }}
+                        </div>
+                        {{ form_errors(setNumberForm.setCode) }}
+                        {{ form_errors(setNumberForm.number) }}
+                    {{ form_end(setNumberForm) }}
                 </div>
             </div>
         </div>
@@ -38,15 +44,17 @@
             </h2>
             <div class="accordion-collapse collapse show">
                 <div class="accordion-body">
-                    <div class="input-group mb-3">
-                        {{ form_widget(form.name) }}
-                        {{ form_widget(form.submit_name) }}
-                    </div>
+                    {{ form_start(nameForm) }}
+                        <div class="input-group">
+                            {{ form_widget(nameForm.name) }}
+                            {{ form_widget(nameForm.submit) }}
+                        </div>
+                        {{ form_errors(nameForm.name) }}
+                    {{ form_end(nameForm) }}
                 </div>
             </div>
         </div>
     </div>
-    {{ form_end(form) }}
 
 
     {% if collection is not empty %}

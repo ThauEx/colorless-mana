@@ -9,8 +9,9 @@ use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\NotBlank;
 
-class CardSearchType extends AbstractType
+class CardSearchSetNumberType extends AbstractType
 {
     public function __construct(private readonly MtgDataProvider $mtgDataProvider)
     {
@@ -29,30 +30,17 @@ class CardSearchType extends AbstractType
 
         $builder
             ->add(
-                'scryfall_id',
-                TextType::class,
-                [
-                    'required' => false,
-                    'attr'     => [
-                        'placeholder' => 'form.card_search.scryfall_id',
-                    ],
-                ]
-            )
-            ->add(
-                'submit_scryfall',
-                SubmitType::class,
-                [
-                    'label' => 'form.card_search.scryfall_submit',
-                ]
-            )
-            ->add(
                 'setCode',
                 ChoiceType::class,
                 [
+                    'label'                     => false,
+                    // TomSelect hides the original select, so the browser cannot
+                    // focus it to report a native validation error
                     'required'                  => false,
                     'placeholder'               => 'form.card_search.set_code',
                     'choices'                   => $setCodes,
                     'choice_translation_domain' => false,
+                    'constraints'               => [new NotBlank()],
                     'attr'                      => [
                         'class'          => 'js-select js-select-set-codes',
                         'data-max-items' => 1,
@@ -64,6 +52,7 @@ class CardSearchType extends AbstractType
                 'number',
                 TextType::class,
                 [
+                    'label'    => false,
                     'required' => false,
                     'attr'     => [
                         'placeholder' => 'form.card_search.number',
@@ -71,27 +60,10 @@ class CardSearchType extends AbstractType
                 ]
             )
             ->add(
-                'submit_set_number',
+                'submit',
                 SubmitType::class,
                 [
                     'label' => 'form.card_search.set_number_submit',
-                ]
-            )
-            ->add(
-                'name',
-                TextType::class,
-                [
-                    'required' => false,
-                    'attr'     => [
-                        'placeholder' => 'form.card_search.name',
-                    ],
-                ]
-            )
-            ->add(
-                'submit_name',
-                SubmitType::class,
-                [
-                    'label' => 'form.card_search.name_submit',
                 ]
             )
         ;
@@ -99,6 +71,14 @@ class CardSearchType extends AbstractType
 
     public function configureOptions(OptionsResolver $resolver): void
     {
-        $resolver->setDefaults([]);
+        $resolver->setDefaults([
+            'method'          => 'GET',
+            'csrf_protection' => false,
+        ]);
+    }
+
+    public function getBlockPrefix(): string
+    {
+        return 'set';
     }
 }

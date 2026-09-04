@@ -7,7 +7,9 @@ use App\DataProvider\MtgDataProvider;
 use App\Entity\Card;
 use App\Entity\CollectedCard;
 use App\Entity\User;
-use App\Form\CardSearchType;
+use App\Form\CardSearchNameType;
+use App\Form\CardSearchScryfallIdType;
+use App\Form\CardSearchSetNumberType;
 use App\Form\MultiSearchType;
 use App\Helper\CollectionManager;
 use Doctrine\Persistence\ManagerRegistry;
@@ -170,28 +172,32 @@ class CollectionController extends AbstractController
     #[Route('/search', name: 'search')]
     public function search(Request $request): Response
     {
-        $form = $this->createForm(CardSearchType::class, $request->query->all());
-        $form->handleRequest($request);
+        // Three separate forms so that pressing enter only submits the one being filled in
+        $scryfallForm = $this->createForm(CardSearchScryfallIdType::class);
+        $setNumberForm = $this->createForm(CardSearchSetNumberType::class);
+        $nameForm = $this->createForm(CardSearchNameType::class);
+
+        foreach ([$scryfallForm, $setNumberForm, $nameForm] as $form) {
+            $form->handleRequest($request);
+        }
+
+        $repo = $this->doctrine->getManager()->getRepository(Card::class);
         $cards = [];
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $data = $form->getData();
-            $em = $this->doctrine->getManager();
-            $repo = $em->getRepository(Card::class);
-
-            if ($form->get('submit_scryfall')->isClicked()) {
-                $cards = $repo->findByScryfallId($data['scryfall_id']);
-            } elseif ($form->get('submit_set_number')->isClicked()) {
-                // Validate
-                $cards = $repo->findBySetCodeAndNumber($data['setCode'], $data['number']);
-            } elseif ($form->get('submit_name')->isClicked()) {
-                $cards = $repo->findByName($data['name']);
-            }
+        if ($scryfallForm->isSubmitted() && $scryfallForm->isValid()) {
+            $cards = $repo->findByScryfallId($scryfallForm->getData()['scryfall_id']);
+        } elseif ($setNumberForm->isSubmitted() && $setNumberForm->isValid()) {
+            $data = $setNumberForm->getData();
+            $cards = $repo->findBySetCodeAndNumber($data['setCode'], $data['number'] ?? '');
+        } elseif ($nameForm->isSubmitted() && $nameForm->isValid()) {
+            $cards = $repo->findByName($nameForm->getData()['name']);
         }
 
         return $this->render('cards/search.html.twig', [
-            'form'       => $form->createView(),
-            'collection' => $cards,
+            'scryfallForm'  => $scryfallForm->createView(),
+            'setNumberForm' => $setNumberForm->createView(),
+            'nameForm'      => $nameForm->createView(),
+            'collection'    => $cards,
         ]);
     }
 
