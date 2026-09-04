@@ -59,9 +59,13 @@ class MtgExtension extends AbstractExtension
 
     public function getFlag(string $languageCode): string
     {
-        $flag = $this->languageMapper->languageToCountry($languageCode);
         $language = $this->languageMapper->codeToLanguage($languageCode);
+        $attribute = $this->languageMapper->getFlagAttribute($languageCode);
 
-        return '<span class="fi fi-' . $flag . '" title="' . $language . '"></span>';
+        if (isset($attribute['data-flag-icon'])) {
+            return '<img class="fi-custom" src="' . $attribute['data-flag-icon'] . '" alt="" title="' . $language . '">';
+        }
+
+        return '<span class="fi fi-' . $attribute['data-lang'] . '" title="' . $language . '"></span>';
     }
 }

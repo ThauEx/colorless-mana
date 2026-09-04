@@ -10,6 +10,13 @@
     height: 14px;
 }
 
+/* Phyrexian has no real-world flag; sized like flag-icons' .fi so it scales the same way as real flags */
+img.fi-custom {
+    display: inline-block;
+    width: 1.333333em;
+    height: 1em;
+}
+
 .card-body .set-icon,
 .row-icon span.set-icon {
     border-radius: 14px;

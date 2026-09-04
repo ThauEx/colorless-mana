@@ -41,7 +41,7 @@ class WishlistType extends AbstractType
                     ],
                     'choice_attr' => function($choice, $value) {
                         $language = $this->languageMapper->languageToCode($value);
-                        return ['data-lang' => $this->languageMapper->languageToCountry($language)];
+                        return $this->languageMapper->getFlagAttribute($language);
                     },
                 ]
             )

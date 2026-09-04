@@ -12,6 +12,8 @@ function getConfig(element) {
       option: function (data) {
         if (data.icon) {
           return `<div><img class="me-2" src="${data.icon}" alt="">${data.text}</div>`;
+        } else if (data.flagIcon) {
+          return `<div><img class="fi-custom me-2" src="${data.flagIcon}" alt="">${data.text}</div>`;
         } else if (data.lang) {
           return `<div><span class="fi fi-${data.lang} me-2"></span>${data.text}</div>`;
         }
@@ -21,6 +23,8 @@ function getConfig(element) {
       item: function (item) {
         if (item.icon) {
           return `<div><img class="me-2" src="${item.icon}" alt="">${item.text}</div>`;
+        } else if (item.flagIcon) {
+          return `<div><img class="fi-custom me-2" src="${item.flagIcon}" alt="">${item.text}</div>`;
         } else if (item.lang) {
           return `<div><span class="fi fi-${item.lang} me-2"></span>${item.text}</div>`;
         }

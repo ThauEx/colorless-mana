@@ -230,7 +230,7 @@ class CollectionSearchType extends AbstractType
                     'attr'        => [
                         'class' => 'js-select js-select-languages',
                     ],
-                    'choice_attr' => fn($choice, $key, $value) => ['data-lang' => $this->languageMapper->languageToCountry($value)],
+                    'choice_attr' => fn($choice, $key, $value) => $this->languageMapper->getFlagAttribute($value),
                 ]
             )
             ->add(

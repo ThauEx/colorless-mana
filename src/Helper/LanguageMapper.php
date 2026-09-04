@@ -44,7 +44,7 @@ class LanguageMapper
         'grc' => 'gr',
         'ar'  => '',
         'sa'  => 'in',
-        'ph'  => '',
+        'ph'  => 'phy',
     ];
 
     public function codeToLanguage(string $code): string
@@ -65,5 +65,17 @@ class LanguageMapper
     public function languageToCountry(string $language): string
     {
         return $this->languageCountry[$language] ?? '';
+    }
+
+    /** Phyrexian has no real-world flag; flag-icons doesn't cover it */
+    public function getFlagAttribute(string $language): array
+    {
+        $country = $this->languageToCountry($language);
+
+        if ($country === 'phy') {
+            return ['data-flag-icon' => '/images/flags/ph.svg'];
+        }
+
+        return ['data-lang' => $country];
     }
 }
