@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'collected_cards')]
 #[ORM\Index(columns: ['edition', 'number', 'language'])]
 #[ORM\Index(columns: ['user_id', 'edition', 'number'])]
+#[ORM\Index(columns: ['user_id', 'set_release_date', 'number'])]
 #[ORM\UniqueConstraint(name: 'uniq_collected_card_entry', columns: ['user_id', 'card_id', 'language', 'finish'])]
 #[ORM\Entity(repositoryClass: CollectedCardRepository::class)]
 class CollectedCard
@@ -25,6 +26,9 @@ class CollectedCard
 
     #[ORM\Column(name: 'number', type: Types::STRING, length: 255)]
     private string $number;
+
+    #[ORM\Column(name: 'set_release_date', type: Types::STRING, length: 10, options: ['default' => ''])]
+    private string $setReleaseDate = '';
 
     #[ORM\Column(name: 'language', type: Types::STRING, length: 3)]
     private string $language;
@@ -67,6 +71,18 @@ class CollectedCard
     public function setNumber(string $number): self
     {
         $this->number = $number;
+
+        return $this;
+    }
+
+    public function getSetReleaseDate(): string
+    {
+        return $this->setReleaseDate;
+    }
+
+    public function setSetReleaseDate(string $setReleaseDate): self
+    {
+        $this->setReleaseDate = $setReleaseDate;
 
         return $this;
     }

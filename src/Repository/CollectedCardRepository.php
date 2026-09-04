@@ -69,7 +69,9 @@ class CollectedCardRepository extends ServiceEntityRepository
             ->select('c, ca')
             ->leftJoin('c.card', 'ca')
             ->where('c.user IN (:users)')
-            ->orderBy('c.edition', 'ASC')
+            // Oldest sets first; setReleaseDate is denormalized onto CollectedCard
+            // since sorting by Card's own columns would always need a filesort
+            ->orderBy('c.setReleaseDate', 'ASC')
             ->addOrderBy('c.number', 'ASC')
         ;
 
@@ -205,7 +207,7 @@ class CollectedCardRepository extends ServiceEntityRepository
                 'quantity' => 'c.quantity',
                 'finish'   => 'c.finish',
                 'rarity'   => 'ca.rarity',
-                'setCode'  => 'c.edition',
+                'setCode'  => 'c.setReleaseDate',
                 'language' => 'c.language',
                 'manaCost' => 'ca.manaCost',
                 'type'     => 'ca.types',
@@ -215,7 +217,7 @@ class CollectedCardRepository extends ServiceEntityRepository
 
             if ($sort === '') {
                 $qb
-                    ->orderBy('c.edition', $direction)
+                    ->orderBy('c.setReleaseDate', $direction)
                     ->addOrderBy('c.number', $direction)
                 ;
             } elseif ($sort === 'effectivePrice') {

@@ -4,6 +4,7 @@ namespace App\Helper;
 
 use App\Entity\Card;
 use App\Entity\CollectedCard;
+use App\Entity\Set;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -37,12 +38,15 @@ class CollectionManager
 
     public function createCollectedCard(UserInterface $user, Card $card, string $language, string $finish): CollectedCard
     {
+        $set = $this->em->getRepository(Set::class)->find($card->getSetCode());
+
         $collectedCard = new CollectedCard();
         $collectedCard
             ->setUser($user)
             ->setCard($card)
             ->setEdition($card->getSetCode())
             ->setNumber($card->getNumber())
+            ->setSetReleaseDate($set?->getReleaseDate() ?? '')
             ->setLanguage($language)
             ->setFinish($finish)
             ->setQuantity(0)

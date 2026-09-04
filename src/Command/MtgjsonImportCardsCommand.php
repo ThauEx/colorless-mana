@@ -6,6 +6,7 @@ use App\Entity\Card;
 use App\Entity\CardLanguageData;
 use App\Helper\MtgjsonFinishResolver;
 use App\Helper\LanguageMapper;
+use App\Helper\SetSyncer;
 use Doctrine\ORM\EntityManagerInterface;
 use JsonMachine\Items as JsonMachine;
 use JsonMachine\JsonDecoder\ExtJsonDecoder;
@@ -27,6 +28,7 @@ class MtgjsonImportCardsCommand extends Command
         private readonly EntityManagerInterface $em,
         private readonly LanguageMapper $languageMapper,
         private readonly MtgjsonFinishResolver $finishResolver,
+        private readonly SetSyncer $setSyncer,
     ) {
         $this->em->getConnection()->getConfiguration()->setResultCache(new NullAdapter());
 
@@ -52,6 +54,8 @@ class MtgjsonImportCardsCommand extends Command
 
             return Command::FAILURE;
         }
+
+        $io->writeln(sprintf('Synced %d sets.', $this->setSyncer->sync()));
 
         $created = 0;
         $updated = 0;
