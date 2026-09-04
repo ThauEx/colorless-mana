@@ -4,6 +4,9 @@
 
 {% block body %}
     <h1 class="h3">{{ 'cards.public.title'|trans({user: user.userIdentifier}) }}</h1>
+    {% if onlyVisibleToMe %}
+        <div class="alert alert-info">{{ 'cards.public.only_visible_to_me'|trans }}</div>
+    {% endif %}
     {% include 'cards/search_filter.html.twig' %}
 
     <p>{{ 'cards.public.number_of_results'|trans({amount: pager.nbResults}) }}</p>

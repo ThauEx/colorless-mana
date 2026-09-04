@@ -43,17 +43,23 @@ class UserController extends AbstractController
             throw $this->createNotFoundException();
         }
 
-        if (in_array($user->getSettings()->get(UserSettings::CAN_SEE_COLLECTION), [UserSettings::NOBODY, UserSettings::FOLLOWERS, UserSettings::FOLLOWING_FOLLOWERS], true)) {
+        $viewer = $this->getUser();
+        $isOwnCollection = $viewer instanceof User && $viewer->getId() === $user->getId();
+        $canBypassSharing = $isOwnCollection || $this->isGranted('ROLE_ADMIN');
+        $isShared = !in_array($user->getSettings()->get(UserSettings::CAN_SEE_COLLECTION), [UserSettings::NOBODY, UserSettings::FOLLOWERS, UserSettings::FOLLOWING_FOLLOWERS], true);
+
+        if (!$isShared && !$canBypassSharing) {
             throw $this->createAccessDeniedException('Private collection');
         }
 
         [$form, $collection, $pager] = $this->getCollection($request, [$user], false, 16);
 
         return $this->render('cards/public.html.twig', [
-            'user'       => $user,
-            'collection' => $collection,
-            'pager'      => $pager,
-            'form'       => $form->createView(),
+            'user'            => $user,
+            'collection'      => $collection,
+            'pager'           => $pager,
+            'form'            => $form->createView(),
+            'onlyVisibleToMe' => $canBypassSharing && !$isShared,
         ]);
     }
 }

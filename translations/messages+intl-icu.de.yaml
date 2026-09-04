@@ -258,6 +258,7 @@ cards:
         number_of_results: "Anzahl der Ergebnisse: {amount}"
         normal: Normal
         foil: Foil
+        only_visible_to_me: Diese Sammlung ist nicht freigegeben. Nur du kannst diese Seite sehen.
     following:
         title: Sammlungen von gefolgten Benutzern
     multi_search:
