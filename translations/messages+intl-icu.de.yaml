@@ -85,7 +85,7 @@ form:
             choices:
                 nobody: Niemand
                 followers: Follower
-                following_followers: Followern denen gefolgt wird
+                following_followers: Follower in deinen Following
                 everybody: Jeder
 language:
     en: Englisch
@@ -197,7 +197,7 @@ navigation:
         import: Import
         search: Hinzufügen
         multi_search: Mehrfachsuche
-        following: Andere Sammlungen
+        following: Following durchsuchen
     wishlist:
         title: Wunschliste
     public_link:
@@ -260,7 +260,7 @@ cards:
         foil: Foil
         only_visible_to_me: Diese Sammlung ist nicht freigegeben. Nur du kannst diese Seite sehen.
     following:
-        title: Sammlungen von gefolgten Benutzern
+        title: Sammlungen der Following
     multi_search:
         title: Mehrfachsuche
 
