@@ -504,11 +504,18 @@ class Card
     {
         /** @var CardLanguageData $texts */
         $texts = $this->{$language . 'Texts'};
-        if (!empty($texts->getName())) {
-            return $texts;
+        if (empty($texts->getName())) {
+            return null;
         }
 
-        return null;
+        // MTGJSON's foreignData only repeats the type line on some prints of a
+        // reprinted card (e.g. basic lands); fall back to English rather than blank.
+        if ($language !== 'en' && empty($texts->getType())) {
+            $texts = clone $texts;
+            $texts->setType($this->enTexts->getType());
+        }
+
+        return $texts;
     }
 
     public function getCardkingdomPrices(): CardPrice
